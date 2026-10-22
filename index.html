@@ -1,0 +1,11 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ClauseGuard — energy PPA & tokenization contract risk check</title>
+<style>body{font-family:system-ui;max-width:900px;margin:2rem auto;padding:0 1rem;background:#0b1220;color:#e5e7eb}textarea{width:100%;height:220px;background:#111827;color:#e5e7eb;border:1px solid #374151;padding:.6rem}button{background:#f59e0b;border:0;padding:.6rem 1.2rem;font-weight:700;cursor:pointer;margin:.5rem .5rem 0 0}.f{border-left:4px solid;padding:.4rem .8rem;margin:.5rem 0;background:#111827}.high{border-color:#ef4444}.med{border-color:#f59e0b}.ok{border-color:#22c55e}small{color:#9ca3af}</style></head><body>
+<h1>⚖️ ClauseGuard</h1><p>Paste a solar PPA, energy-sharing or RWA tokenization agreement. ClauseGuard flags missing or risky clauses in your browser (no data leaves the page) and outputs a SHA-256 fingerprint you can anchor on-chain as proof of the reviewed version.</p>
+<textarea id="t"></textarea><br><button onclick="sample()">Load sample</button><button onclick="run()">Check contract</button>
+<div id="o"></div><p><small>Not legal advice. Rule-based checklist for first-pass review by a lawyer.</small></p>
+<script src="rules.js"></script><script>
+function sample(){t.value=`POWER PURCHASE AGREEMENT. Seller shall deliver energy from the rooftop solar system. Buyer shall pay a price per kWh that the Seller may change at any time at its sole discretion. Tokens representing revenue share will be issued to investors. This agreement is governed by the laws of Delaware.`}
+async function run(){const r=check(t.value);const h=await sha(t.value);o.innerHTML=`<h3>Score: ${r.score}/100</h3>`+r.findings.map(f=>`<div class="f ${f.level}"><b>${f.title}</b><br>${f.msg}</div>`).join('')+`<p><small>Document fingerprint (SHA-256): ${h}</small></p>`}
+async function sha(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+</script></body></html>
