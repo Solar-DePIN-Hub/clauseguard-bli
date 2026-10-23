@@ -31,7 +31,7 @@ flowchart LR
   A[AI agent / script] -->|POST text| API["api/review.js<br/>same rules.js, stateless"]
   T[CRE HTTP trigger] --> WF["CRE workflow clauseguard-attest"]
   WF -->|every DON node, consensus on score + hashes| API
-  WF -->|re-hash text, abort on mismatch;<br/>needsLawyer = score < threshold or any high| WF
+  WF -->|re-hash text, abort on mismatch;<br/>needsLawyer = score below threshold or any high finding| WF
   WF -->|signed report via forwarder| C["ClauseGuardRegistry.sol (Sepolia)<br/>stores hashes, score, flag only"]
 ```
 One rules engine (`rules.js`) is shared by the browser, the API and the tests, so a report computed in the browser, by the API or inside the CRE workflow has the same hashes. Contract text never reaches the chain; only `docHash`, `reportHash`, the score and the `needsLawyer` flag are stored.
