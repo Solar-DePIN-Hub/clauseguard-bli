@@ -1,0 +1,3 @@
+{ "name": "clauseguard-registry", "private": true, "type": "module",
+  "scripts": { "build": "node build.cjs", "test": "node local-test.mjs" },
+  "devDependencies": { "solc": "0.8.24", "ganache": "^7.9.2", "viem": "2.34.0" } }

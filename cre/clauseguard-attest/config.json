@@ -1,0 +1,7 @@
+{
+  "apiUrl": "https://clauseguard-bli.vercel.app/api/review",
+  "riskThreshold": 70,
+  "evms": [
+    { "registryAddress": "0x0000000000000000000000000000000000000000", "chainSelectorName": "ethereum-testnet-sepolia", "gasLimit": "300000" }
+  ]
+}

@@ -1,11 +1,90 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ClauseGuard — energy PPA & tokenization contract risk check</title>
-<style>body{font-family:system-ui;max-width:900px;margin:2rem auto;padding:0 1rem;background:#0b1220;color:#e5e7eb}textarea{width:100%;height:220px;background:#111827;color:#e5e7eb;border:1px solid #374151;padding:.6rem}button{background:#f59e0b;border:0;padding:.6rem 1.2rem;font-weight:700;cursor:pointer;margin:.5rem .5rem 0 0}.f{border-left:4px solid;padding:.4rem .8rem;margin:.5rem 0;background:#111827}.high{border-color:#ef4444}.med{border-color:#f59e0b}.ok{border-color:#22c55e}small{color:#9ca3af}</style></head><body>
-<h1>⚖️ ClauseGuard</h1><p>Paste a solar PPA, energy-sharing or RWA tokenization agreement. ClauseGuard flags missing or risky clauses in your browser (no data leaves the page) and outputs a SHA-256 fingerprint you can anchor on-chain as proof of the reviewed version.</p>
-<textarea id="t"></textarea><br><button onclick="sample()">Load sample</button><button onclick="run()">Check contract</button>
-<div id="o"></div><p><small>Not legal advice. Rule-based checklist for first-pass review by a lawyer.</small></p>
-<script src="rules.js"></script><script>
-function sample(){t.value=`POWER PURCHASE AGREEMENT. Seller shall deliver energy from the rooftop solar system. Buyer shall pay a price per kWh that the Seller may change at any time at its sole discretion. Tokens representing revenue share will be issued to investors. This agreement is governed by the laws of Delaware.`}
-async function run(){const r=check(t.value);const h=await sha(t.value);o.innerHTML=`<h3>Score: ${r.score}/100</h3>`+r.findings.map(f=>`<div class="f ${f.level}"><b>${f.title}</b><br>${f.msg}</div>`).join('')+`<p><small>Document fingerprint (SHA-256): ${h}</small></p>`}
+<title>ClauseGuard — contract risk check for solar PPAs & tokenized energy</title>
+<meta name="description" content="Private, explainable first-pass review of solar PPAs, energy-sharing and tokenized revenue-share contracts, with a verifiable report hash.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
+<style>
+:root{--bg:#0b1220;--card:#111a2e;--line:#24314d;--ink:#e6ebf5;--mut:#93a0b8;--hi:#ef4444;--me:#f59e0b;--lo:#38bdf8;--ok:#22c55e;--acc:#fbbf24}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+.wrap{max-width:1100px;margin:auto;padding:24px 18px}h1{margin:0;font-size:2rem}h1 small{font-size:.9rem;color:var(--mut);font-weight:400}
+.lead{color:var(--mut);max-width:780px}.pill{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:2px 10px;font-size:.8rem;margin:2px;color:var(--mut)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0}
+textarea{width:100%;height:230px;background:#0a1020;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px;font:14px/1.45 ui-monospace,monospace}
+button,.btn{background:#1b2742;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px 14px;cursor:pointer;font-weight:600;margin:4px 4px 0 0;font-size:.9rem}
+button.main{background:var(--acc);color:#111;border:0;padding:10px 20px;font-size:1rem}button:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}.grid{display:grid;grid-template-columns:1.25fr 1fr;gap:14px}@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.score{width:120px;height:120px;border-radius:50%;display:grid;place-items:center;font-size:2rem;font-weight:800}
+.score span{display:block;font-size:.8rem;font-weight:500;color:var(--mut);text-align:center}
+.f{border-left:5px solid;border-radius:10px;background:#0d1528;padding:10px 12px;margin:10px 0}.f.high{border-color:var(--hi)}.f.med{border-color:var(--me)}.f.low{border-color:var(--lo)}
+.f h4{margin:0 0 4px;font-size:1rem}.tag{font-size:.72rem;padding:1px 8px;border-radius:99px;margin-left:6px;vertical-align:middle}.tag.high{background:#7f1d1d}.tag.med{background:#78350f}.tag.low{background:#0c4a6e}
+.q{background:#1e293b;border-radius:8px;padding:6px 10px;margin:6px 0;font-style:italic}.f p{margin:4px 0}.k{color:var(--mut);font-size:.82rem}
+.doc{white-space:pre-wrap;font:13px/1.6 ui-monospace,monospace;max-height:460px;overflow:auto;background:#0a1020;border-radius:10px;padding:10px}
+mark{background:#7f1d1d;color:#fff;border-radius:3px;padding:0 2px;cursor:help}
+code,.hash{font:12px ui-monospace,monospace;word-break:break-all;color:#cbd5e1}.ok{color:var(--ok)}.bad{color:var(--hi)}
+details summary{cursor:pointer;color:var(--mut)}footer{color:var(--mut);font-size:.85rem;padding:20px 0}
+input[type=text]{width:100%;background:#0a1020;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px;font:12px ui-monospace,monospace}
+a{color:var(--acc)}
+</style></head><body><div class="wrap">
+<h1>⚖️ ClauseGuard <small>first-pass contract check for small solar producers</small></h1>
+<p class="lead">Paste a rooftop solar <b>PPA</b>, an <b>energy-sharing</b> agreement or <b>tokenized revenue-share</b> terms. ClauseGuard finds missing and one-sided clauses, quotes the sentence that triggered each finding, explains why it matters with the legal source, and gives you the question to ask a lawyer. The review runs <b>in your browser</b>. You get a SHA-256 fingerprint of the document and of the report that anyone can re-check or anchor on-chain.</p>
+<div><span class="pill">17 rules · v2.0</span><span class="pill">deterministic & explainable</span><span class="pill">no upload, no account</span><span class="pill">public API for agents</span><span class="pill">Chainlink CRE workflow</span></div>
+
+<div class="card">
+<div class="row"><b>Try a sample:</b><button onclick="load('risky')">⚠️ Risky rooftop PPA</button><button onclick="load('fair')">✅ Balanced PPA</button><button onclick="load('token')">🪙 Revenue-share token</button>
+<label class="btn">📄 Open .txt<input type="file" accept=".txt,.md,text/plain" hidden onchange="openFile(this)"></label></div>
+<textarea id="t" placeholder="Paste contract text here…"></textarea>
+<div class="row"><button class="main" id="go" onclick="run()">Check contract</button><span class="k">Nothing is sent to a server. Not legal advice.</span></div>
+</div>
+
+<div id="res" hidden>
+<div class="card row" id="summary"></div>
+<div class="grid">
+ <div><div class="card"><h3 style="margin-top:0">Findings</h3><div id="findings"></div><details id="passedBox"><summary>Checks passed</summary><div id="passed"></div></details></div></div>
+ <div>
+  <div class="card"><h3 style="margin-top:0">Your document <span class="k">(red = risky wording, hover for the rule)</span></h3><div class="doc" id="doc"></div></div>
+  <div class="card"><h3 style="margin-top:0">🔏 Proof of review</h3>
+   <p class="k">Document hash = SHA-256 of the exact text. Report hash = SHA-256 of the canonical report (document hash + ruleset + findings). Same text → same hashes, on any computer.</p>
+   <div>Document: <div class="hash" id="dh"></div></div><div style="margin-top:6px">Report: <div class="hash" id="rh"></div></div><div class="k" id="rs"></div>
+   <div class="row" style="margin-top:8px"><button onclick="dl('md')">⬇ Report (.md)</button><button onclick="dl('json')">⬇ Report (.json)</button><button onclick="copyQs()" id="cq">📋 Copy lawyer questions</button></div>
+   <h4>Verify a version</h4><input type="text" id="vh" placeholder="Paste a document hash you received (e.g. from the other party)"><div id="vout" class="k"></div>
+   <h4>Anchor on-chain (optional)</h4><p class="k">With an EVM wallet (use a testnet like Sepolia), this sends a 0-value transaction to yourself with the report hash as data, a public timestamp that the reviewed version existed.</p>
+   <button onclick="anchor()" id="anc">🔗 Anchor report hash</button><div id="aout" class="k"></div>
+  </div>
+ </div>
+</div></div>
+
+<div class="card"><h3 style="margin-top:0">How it works</h3>
+<p class="k">1) The text is split into sentences. 2) 17 rules check for clauses a small producer needs (termination, metering, curtailment, force majeure, liability cap, data protection…) and for risky wording (unilateral changes, one-sided liability exclusions, uncapped termination fees, tokens without securities/KYC disclosure). Rules only run when relevant (e.g. token rules only when tokens or investors are mentioned). 3) Score = share of applicable checks passed, weighted by severity. 4) Hashes are computed with Web Crypto. The same engine is available as <code>POST /api/review</code> for AI agents and the Chainlink CRE workflow in the <a href="https://github.com/Solar-DePIN-Hub/clauseguard-bli">repo</a>.</p></div>
+<footer>ClauseGuard by Vadym · Solar DePIN Hub (Ukraine) · BLI Legal Tech Hackathon 2 · <b>Not legal advice</b>: a checklist to help you prepare for a lawyer, not replace one.</footer>
+</div>
+<script src="rules.js"></script><script src="samples.js"></script><script>
+const $=id=>document.getElementById(id);let last=null;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function load(k){$('t').value=SAMPLES[k];run()}
+function openFile(i){const f=i.files[0];if(!f)return;f.text().then(x=>{$('t').value=x;run()})}
 async function sha(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+async function run(){const txt=$('t').value;if(!txt.trim()){$('t').focus();return}
+ const r=ClauseGuard.check(txt),dh=await sha(txt),rh=await sha(ClauseGuard.canonical(ClauseGuard.reportPayload(dh,r)));last={txt,r,dh,rh};
+ const col=r.score>=85?'var(--ok)':r.score>=50?'var(--me)':'var(--hi)';
+ $('summary').innerHTML=`<div class="score" style="border:8px solid ${col}"><div>${r.score}<span>grade ${r.grade}</span></div></div>
+ <div><div><b>Detected:</b> ${r.types.length?r.types.map(t=>`<span class="pill">${t.label}</span>`).join(''):'<span class="pill">general contract</span>'}</div>
+ <div style="margin-top:6px"><span class="bad">● ${r.counts.high} high</span> &nbsp; <span style="color:var(--me)">● ${r.counts.med} medium</span> &nbsp; <span style="color:var(--lo)">● ${r.counts.low} low</span> &nbsp; <span class="ok">✓ ${r.counts.passed} passed</span> &nbsp; <span class="k">${r.words} words</span></div>
+ <div class="k" style="margin-top:6px">${r.counts.high?'Do not sign before a lawyer has looked at the red items.':r.findings.length?'Mostly balanced. Check the remaining items.':'All applicable checks passed. Still have a lawyer read it.'}</div></div>`;
+ $('findings').innerHTML=r.findings.length?r.findings.map(f=>`<div class="f ${f.level}"><h4>${esc(f.title)}<span class="tag ${f.level}">${f.level==='med'?'medium':f.level}</span> <span class="k">· ${esc(f.category)} · ${f.kind}</span></h4>
+ <p>${esc(f.msg)}</p>${f.evidence?`<div class="q">“${esc(f.evidence)}”</div>`:''}<p class="k"><b>Why:</b> ${esc(f.why)}</p><p class="k"><b>Ask your lawyer:</b> ${esc(f.ask)}</p><p class="k"><b>Fairer wording:</b> ${esc(f.fix)}</p></div>`).join(''):'<p class="ok">No issues found.</p>';
+ $('passed').innerHTML=r.passed.map(p=>`<div class="k">✓ ${esc(p.title)}${p.evidence?` — “${esc(p.evidence.slice(0,110))}${p.evidence.length>110?'…':''}”`:''}</div>`).join('');
+ const ev=new Map(r.findings.filter(f=>f.evidence).map(f=>[f.evidence,f.title]));let html=esc(txt);
+ for(const [s,t] of ev){html=html.split(esc(s)).join(`<mark title="${esc(t)}">${esc(s)}</mark>`)}$('doc').innerHTML=html;
+ $('dh').textContent=dh;$('rh').textContent=rh;$('rs').textContent='Ruleset: '+r.ruleset;$('vout').textContent='';$('aout').textContent='';
+ $('res').hidden=false;$('summary').scrollIntoView({behavior:'smooth'})}
+$('vh').oninput=()=>{const v=$('vh').value.trim().toLowerCase().replace(/^0x/,'');if(!last||!v){$('vout').textContent='';return}
+ $('vout').innerHTML=v===last.dh?'<span class="ok">✓ Match: this is exactly the version that hash was made from.</span>':v===last.rh?'<span class="ok">✓ Match: this is the report hash for this text and ruleset.</span>':'<span class="bad">✗ No match: the text differs from the version behind that hash.</span>'};
+function md(){const {r,dh,rh}=last;return `# ClauseGuard report\n\nScore: ${r.score}/100 (grade ${r.grade})  \nDetected: ${r.types.map(t=>t.label).join(', ')||'general contract'}  \nRuleset: ${r.ruleset}  \nDocument SHA-256: ${dh}  \nReport SHA-256: ${rh}\n\n## Findings\n`+r.findings.map((f,i)=>`\n### ${i+1}. ${f.title} (${f.level})\n${f.msg}\n${f.evidence?`\n> ${f.evidence}\n`:''}\n- Why: ${f.why}\n- Ask your lawyer: ${f.ask}\n- Fairer wording: ${f.fix}\n`).join('')+`\n## Checks passed\n`+r.passed.map(p=>`- ${p.title}`).join('\n')+`\n\n_Not legal advice. Generated by ClauseGuard (https://clauseguard-bli.vercel.app)._\n`}
+function dl(kind){if(!last)return;const data=kind==='md'?md():JSON.stringify({docHash:last.dh,reportHash:last.rh,...last.r},null,2);
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'text/plain'}));a.download='clauseguard-report.'+kind;a.click()}
+function copyQs(){if(!last)return;navigator.clipboard.writeText(last.r.findings.map((f,i)=>`${i+1}. ${f.ask}`).join('\n')).then(()=>{$('cq').textContent='✓ Copied';setTimeout(()=>$('cq').textContent='📋 Copy lawyer questions',1500)})}
+async function anchor(){if(!last)return;if(!window.ethereum){$('aout').textContent='No EVM wallet found in this browser. You can still keep the report hash; it can be anchored later.';return}
+ try{const [from]=await ethereum.request({method:'eth_requestAccounts'});const chain=await ethereum.request({method:'eth_chainId'});
+ const tx=await ethereum.request({method:'eth_sendTransaction',params:[{from,to:from,value:'0x0',data:'0x'+last.rh}]});
+ const ex={'0xaa36a7':'https://sepolia.etherscan.io/tx/','0x1':'https://etherscan.io/tx/','0x14a34':'https://sepolia.basescan.org/tx/'}[chain];
+ $('aout').innerHTML='Sent: '+(ex?`<a target="_blank" href="${ex}${tx}">${tx}</a>`:tx)}catch(e){$('aout').textContent='Not sent: '+(e.message||e)}}
 </script></body></html>
