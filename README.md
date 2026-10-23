@@ -21,6 +21,21 @@ Households, farms and small businesses sign 10–25 year solar PPAs, energy-shar
 | `api/review.js` | The same engine as a stateless serverless API for AI agents and the CRE workflow. Nothing is stored. |
 | `cre/` | A Chainlink CRE workflow. An HTTP trigger sends the text, DON nodes call the API with consensus, the workflow re-hashes the text and decides whether to flag `needsLawyer`, then writes a signed report to `ClauseGuardRegistry` on Sepolia. |
 
+## Architecture
+```mermaid
+flowchart LR
+  U[User pastes contract] --> B["Browser: index.html + rules.js<br/>(nothing uploaded)"]
+  B --> R["Report: score, findings with evidence,<br/>sources, lawyer questions"]
+  B --> H["SHA-256 docHash + reportHash<br/>(canonical JSON)"]
+  H -->|optional| W[EVM wallet: anchor reportHash]
+  A[AI agent / script] -->|POST text| API["api/review.js<br/>same rules.js, stateless"]
+  T[CRE HTTP trigger] --> WF["CRE workflow clauseguard-attest"]
+  WF -->|every DON node, consensus on score + hashes| API
+  WF -->|re-hash text, abort on mismatch;<br/>needsLawyer = score < threshold or any high| WF
+  WF -->|signed report via forwarder| C["ClauseGuardRegistry.sol (Sepolia)<br/>stores hashes, score, flag only"]
+```
+One rules engine (`rules.js`) is shared by the browser, the API and the tests, so a report computed in the browser, by the API or inside the CRE workflow has the same hashes. Contract text never reaches the chain; only `docHash`, `reportHash`, the score and the `needsLawyer` flag are stored.
+
 ## Run & test
 ```bash
 node test.js                                           # engine tests (3 sample contracts, evidence, determinism)
