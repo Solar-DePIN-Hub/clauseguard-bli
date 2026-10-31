@@ -84,6 +84,17 @@ flowchart LR
 - **Fair Contracts:** If `needsLawyer = false`, signing/release proceeds without lawyer approval.
 - **Refund:** Offtaker can refund before both parties sign.
 
+## CRE simulation (Chainlink CRE CLI v1.39.0)
+`cre workflow simulate` ran successfully on 2026-10-31 (full log: [docs/cre-simulation.log](docs/cre-simulation.log)):
+```
+[USER LOG] review score=45 high=2 ruleset=clauseguard-rules-3.0.0
+[USER LOG] law check: 7/7 cited acts in force (EUR-Lex Cellar)
+[USER LOG] lei check: ACTIVE/ISSUED Bloomberg Finance L.P.
+[USER LOG] decision: NEEDS LAWYER (high-risk clauses)
+✓ Workflow Simulation Result: {"docHash":"542829a7…","reportHash":"f8ab1b98…","score":45,"needsLawyer":true,"lawInForce":"7/7", ...}
+```
+Reproduce: `cd cre && cre workflow simulate clauseguard-attest -T staging-settings --non-interactive --trigger-index 0 --http-payload clauseguard-attest/payload-lei.json` (simulation write uses a zero tx hash; the live Sepolia demo above uses real txs).
+
 ## How ClauseGuard Compares
 
 | Feature | ClauseGuard | Generic AI Contract Review | RWA Compliance Gates |
@@ -148,7 +159,7 @@ node e2e/types.cjs                                     # 16 checks
 - Rules are keyword and pattern-based. They can miss clauses written in unusual words.
 - English only for now. More language rule packs (e.g. Polish) are next.
 - **Sepolia deployment:** Done (see above).
-- **CRE CLI simulation:** Pending (`cre workflow simulate` requires a CRE account login; workflow unit tests 13/13 pass locally).
+- **CRE CLI simulation:** done, see "CRE simulation" section.
 
 Author: Vadym, solo developer, Solar DePIN Hub.
 Built by a solo developer whose AI agents run on our own solar-powered GPU server.
