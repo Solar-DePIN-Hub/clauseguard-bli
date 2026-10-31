@@ -842,6 +842,197 @@ body[data-view="home"] .hx-hero{
     scroll-behavior:auto;
   }
 }
+@keyframes hxSweep2{from{background-size:0% 60%}to{background-size:100% 60%}}
+@keyframes hxNoteIn2{from{opacity:0;transform:translateX(6px)}to{opacity:1;transform:translateX(0)}}
+@keyframes hxStampIn2{from{opacity:0;transform:translateX(-50%) rotate(-8deg) scale(1.7)}to{opacity:1;transform:translateX(-50%) rotate(-8deg) scale(1)}}
+
+.hx-hero .hx-right{display:flex;justify-content:center;min-width:0}
+
+.hx-hero .hx-sheet{
+  position:relative;
+  width:100%;
+  max-width:560px;
+  background:linear-gradient(180deg,#fbf8f1,#f4efe3);
+  border:1px solid rgba(43,42,39,.14);
+  padding:22px 26px 34px 26px;
+  box-shadow:0 1px 0 rgba(43,42,39,.05),0 18px 34px -26px rgba(43,42,39,.35);
+  color:#2b2a27;
+  overflow:hidden;
+}
+.hx-hero .hx-sheet::before{
+  content:"";
+  position:absolute;
+  left:0;right:0;top:0;
+  height:5px;
+  background:#2b2a27;
+  opacity:.85;
+}
+.hx-hero .hx-sheet-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  font-family:var(--mono,ui-monospace,monospace);
+  font-size:.64rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:#2b2a27;
+  opacity:.7;
+  border-bottom:1px solid rgba(43,42,39,.16);
+  padding-bottom:8px;
+  margin-bottom:12px;
+}
+.hx-hero .hx-sheet-title{
+  margin:0 0 12px;
+  font-family:var(--serif,Georgia,serif);
+  font-weight:700;
+  font-size:1.35rem;
+  line-height:1.05;
+  letter-spacing:-.01em;
+  color:#2b2a27;
+}
+
+.hx-hero .hx-clause{
+  position:relative;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 150px;
+  gap:10px;
+  align-items:start;
+  padding:9px 0 11px 0;
+  border-bottom:1px solid rgba(43,42,39,.12);
+}
+.hx-hero .hx-clause:last-of-type{border-bottom:0}
+
+.hx-hero .hx-cl-no{
+  grid-column:1;
+  grid-row:1;
+  font-family:var(--serif,Georgia,serif);
+  font-size:.95rem;
+  font-weight:600;
+  color:#2b2a27;
+  opacity:.75;
+  line-height:1.5;
+}
+.hx-hero .hx-cl-txt{
+  grid-column:1;
+  grid-row:2;
+  margin:0;
+  font-family:var(--serif,Georgia,serif);
+  font-size:13.5px;
+  line-height:1.5;
+  color:#2b2a27;
+}
+
+.hx-hero .hx-mk{
+  display:inline;
+  background-image:linear-gradient(180deg,transparent 40%,rgba(214,96,60,.22) 40%,rgba(214,96,60,.22) 100%);
+  background-repeat:no-repeat;
+  background-size:0% 100%;
+  background-position:0 100%;
+  color:#2b2a27;
+  padding:.05em .18em;
+  margin:0 .02em;
+  border-radius:3px 8px 4px 9px;
+  box-decoration-break:clone;
+  -webkit-box-decoration-break:clone;
+  animation:hxSweep2 .8s ease-out forwards;
+}
+.hx-hero .hx-mk::after{
+  content:"";
+  position:relative;
+  display:inline-block;
+  width:0;
+}
+.hx-hero .hx-mk-1{animation-delay:.6s}
+.hx-hero .hx-mk-2{animation-delay:1.2s}
+.hx-hero .hx-mk-3{animation-delay:1.8s}
+.hx-hero .hx-mk-4{animation-delay:2.4s}
+.hx-hero .hx-mk-5{animation-delay:3.0s}
+
+.hx-hero .hx-note{
+  position:static;
+  transform:none;
+  grid-column:2;
+  grid-row:1 / span 2;
+  width:auto;
+  max-width:150px;
+  margin:0;
+  padding:0 0 0 12px;
+  border-left:1px solid rgba(43,42,39,.25);
+  font-family:var(--serif,Georgia,serif);
+  font-style:italic;
+  font-size:11px;
+  line-height:1.45;
+  color:rgba(43,42,39,.72);
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  opacity:0;
+  animation:hxNoteIn2 .5s ease-out forwards;
+}
+.hx-hero .hx-note::before{
+  content:"";
+  position:absolute;
+  left:-12px;
+  top:5px;
+  width:12px;
+  height:1px;
+  background:rgba(43,42,39,.3);
+}
+.hx-hero .hx-note-1{animation-delay:.9s}
+.hx-hero .hx-note-2{animation-delay:1.5s}
+.hx-hero .hx-note-3{animation-delay:2.1s}
+.hx-hero .hx-note-4{animation-delay:2.7s}
+.hx-hero .hx-note-5{animation-delay:3.3s}
+
+.hx-hero .hx-stamp{
+  position:absolute;
+  left:50%;
+  bottom:18px;
+  transform:translateX(-50%) rotate(-8deg) scale(1.7);
+  opacity:0;
+  font-family:var(--serif,Georgia,serif);
+  font-weight:700;
+  font-size:1.1rem;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:rgba(120,30,35,.72);
+  border:2px double rgba(120,30,35,.72);
+  padding:5px 14px;
+  background:rgba(251,248,241,.5);
+  white-space:nowrap;
+  animation:hxStampIn2 .5s cubic-bezier(.2,.9,.3,1.2) 3.6s forwards;
+}
+
+@media (max-width:640px){
+  .hx-hero .hx-sheet{max-width:100%;padding:18px 16px 30px 16px}
+  .hx-hero .hx-clause{grid-template-columns:minmax(0,1fr);gap:6px}
+  .hx-hero .hx-cl-no{grid-column:1;grid-row:1}
+  .hx-hero .hx-cl-txt{grid-column:1;grid-row:2}
+  .hx-hero .hx-note{
+    grid-column:1;
+    grid-row:3;
+    max-width:100%;
+    width:100%;
+    margin-top:6px;
+    padding-left:12px;
+  }
+  .hx-hero .hx-note::before{display:none}
+  .hx-hero .hx-stamp{font-size:.95rem;padding:4px 12px;bottom:14px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .hx-hero .hx-mk{animation:none;background-size:100% 100%}
+  .hx-hero .hx-note{animation:none;opacity:1;transform:none}
+  .hx-hero .hx-stamp{animation:none;opacity:1;transform:translateX(-50%) rotate(-8deg) scale(1)}
+}
+
+.hx-hero .hx-clause{grid-template-columns:20px minmax(0,1fr) 150px;column-gap:8px;padding:8px 0 9px}
+.hx-hero .hx-cl-no{grid-column:1;grid-row:1;font-size:13.5px}
+.hx-hero .hx-cl-txt{grid-column:2;grid-row:1}
+.hx-hero .hx-note{grid-column:3;grid-row:1;position:relative}
+.hx-hero .hx-sheet{padding-bottom:86px}
+.hx-hero .hx-stamp{left:auto;right:22px;bottom:18px;transform-origin:center}
+@keyframes hxStampIn2{from{opacity:0;transform:rotate(-8deg) scale(1.7)}to{opacity:1;transform:rotate(-8deg) scale(1)}}
+@media (max-width:700px){.hx-hero .hx-clause{grid-template-columns:20px minmax(0,1fr)}.hx-hero .hx-note{grid-column:2;grid-row:2;max-width:none;margin-top:4px}}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -886,37 +1077,32 @@ body[data-view="home"] .hx-hero{
 
       <div class="hx-clause">
         <span class="hx-cl-no">1.</span>
-        <p class="hx-cl-txt">The Tenant shall pay the monthly rent of €1,200 on the first day of each month. Late payment after three (3) days shall incur a penalty of 5% of the monthly rent per day of delay.</p>
-        <mark class="hx-mk hx-mk-1">a penalty of 5% of the monthly rent per day of delay</mark>
-        <span class="hx-note hx-note-1">Dir. 93/13/EEC Art. 3 — unfair term (excessive penalty)</span>
+        <p class="hx-cl-txt">The Tenant shall pay the monthly rent of €1,200 on the first day of each month. Late payment after three (3) days shall incur <mark class="hx-mk hx-mk-1">a penalty of 5% of the monthly rent per day of delay</mark>.</p>
+        <span class="hx-note hx-note-1">Dir. 93/13/EEC Annex 1(e) ? disproportionate penalty</span>
       </div>
 
       <div class="hx-clause">
         <span class="hx-cl-no">2.</span>
-        <p class="hx-cl-txt">The Landlord may enter the premises at any time, without notice, for any purpose the Landlord deems appropriate.</p>
-        <mark class="hx-mk hx-mk-2">enter the premises at any time, without notice</mark>
-        <span class="hx-note hx-note-2">Consumer Rights Dir. 2011/83/EU — right to quiet enjoyment</span>
+        <p class="hx-cl-txt">The Landlord may <mark class="hx-mk hx-mk-2">enter the premises at any time, without notice</mark>, for any purpose the Landlord deems appropriate.</p>
+        <span class="hx-note hx-note-2">Dir. 93/13/EEC Art. 3(1) ? significant imbalance</span>
       </div>
 
       <div class="hx-clause">
         <span class="hx-cl-no">3.</span>
-        <p class="hx-cl-txt">In the event of any dispute, the Tenant waives all rights to bring a claim before a court and agrees that the Landlord's decision shall be final and binding.</p>
-        <mark class="hx-mk hx-mk-3">the Tenant waives all rights to bring a claim before a court</mark>
-        <span class="hx-note hx-note-3">Dir. 93/13/EEC Art. 3(1)(e) — waiver of legal remedy</span>
+        <p class="hx-cl-txt">In the event of any dispute, <mark class="hx-mk hx-mk-3">the Tenant waives all rights to bring a claim before a court</mark> and agrees that the Landlord's decision shall be final and binding.</p>
+        <span class="hx-note hx-note-3">Dir. 93/13/EEC Annex 1(q) ? excludes legal remedies</span>
       </div>
 
       <div class="hx-clause">
         <span class="hx-cl-no">4.</span>
-        <p class="hx-cl-txt">The Tenant shall be solely liable for any and all repairs, including structural defects, at their own cost, regardless of cause.</p>
-        <mark class="hx-mk hx-mk-4">solely liable for any and all repairs, including structural defects</mark>
-        <span class="hx-note hx-note-4">Dir. 93/13/EEC Art. 4 — imbalance of rights</span>
+        <p class="hx-cl-txt">The Tenant shall be <mark class="hx-mk hx-mk-4">solely liable for any and all repairs, including structural defects</mark>, at their own cost, regardless of cause.</p>
+        <span class="hx-note hx-note-4">Dir. 93/13/EEC Art. 3(1) ? significant imbalance</span>
       </div>
 
       <div class="hx-clause">
         <span class="hx-cl-no">5.</span>
-        <p class="hx-cl-txt">The Landlord may terminate this agreement at any time, for any reason, with no notice and no refund of prepaid rent.</p>
-        <mark class="hx-mk hx-mk-5">terminate this agreement at any time, for any reason</mark>
-        <span class="hx-note hx-note-5">Consumer Rights Dir. 2011/83/EU — unfair termination</span>
+        <p class="hx-cl-txt">The Landlord may <mark class="hx-mk hx-mk-5">terminate this agreement at any time, for any reason</mark>, with no notice and no refund of prepaid rent.</p>
+        <span class="hx-note hx-note-5">Dir. 93/13/EEC Annex 1(g) ? termination without notice</span>
       </div>
 
       <div class="hx-stamp" aria-hidden="true">Needs Lawyer</div>
