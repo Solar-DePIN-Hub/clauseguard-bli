@@ -31,7 +31,7 @@ function ok(cond, label) {
   await page.goto(url, { waitUntil: 'load' });
 
   // --- Risky sample ---
-  await page.click('text=Risky rooftop PPA');
+  await page.evaluate(()=>{location.hash='#home'}); await page.evaluate(()=>{location.hash='#analyze'}); await page.waitForTimeout(300); await page.click('text=Risky rooftop PPA');
   await page.waitForSelector('#gate', { state: 'visible' });
   ok(true, 'risky: #gate visible');
 
@@ -53,7 +53,7 @@ function ok(cond, label) {
   ok(g4cls && g4cls.includes('ok'), 'risky: #g4 has ok state');
 
   // --- Balanced sample ---
-  await page.click('text=Balanced PPA');
+  await page.evaluate(()=>{location.hash='#home'}); await page.evaluate(()=>{location.hash='#analyze'}); await page.waitForTimeout(300); await page.click('text=Balanced PPA');
   await page.waitForSelector('#gate', { state: 'visible' });
   log = await page.textContent('#glog');
   ok(log.trim() === '', 'balanced: log reset on new run');

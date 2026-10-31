@@ -47,14 +47,14 @@ function ok(cond, label) {
   ];
 
   for (const [btnText, expected] of samples) {
-    await page.click('button:has-text("' + btnText + '")');
+    await page.evaluate(()=>{location.hash='#home'}); await page.evaluate(()=>{location.hash='#analyze'}); await page.waitForTimeout(300); await page.click('button:has-text("' + btnText + '")');
     await page.waitForTimeout(800);
     const summary = (await page.textContent('#summary')) || '';
     ok(summary.includes(expected), btnText + ' -> summary contains "' + expected + '"');
   }
 
   // --- Risky apartment lease: findings + disclaimer ---
-  await page.click('button:has-text("Risky apartment lease")');
+  await page.evaluate(()=>{location.hash='#home'}); await page.evaluate(()=>{location.hash='#analyze'}); await page.waitForTimeout(300); await page.click('button:has-text("Risky apartment lease")');
   await page.waitForTimeout(800);
   const findingsText = (await page.textContent('#findings')) || '';
   ok(findingsText.includes('Jurisdiction:'), 'apartment: #findings contains "Jurisdiction:"');
@@ -63,13 +63,13 @@ function ok(cond, label) {
   ok(discText.includes('not legal advice'), 'apartment: #disc contains "not legal advice"');
 
   // --- Balanced freelance contract: no high findings ---
-  await page.click('button:has-text("Balanced freelance contract")');
+  await page.evaluate(()=>{location.hash='#home'}); await page.evaluate(()=>{location.hash='#analyze'}); await page.waitForTimeout(300); await page.click('button:has-text("Balanced freelance contract")');
   await page.waitForTimeout(800);
   const highCount = await page.$$eval('#findings .f.high', els => els.length);
   ok(highCount === 0, 'balanced freelance: no .f.high elements in #findings');
 
   // --- Forced type: loan + freelance text -> APR finding ---
-  await page.selectOption('#ctype', 'loan');
+  await page.evaluate(()=>{location.hash='#home'}); await page.evaluate(()=>{location.hash='#analyze'}); await page.waitForTimeout(300); await page.selectOption('#ctype', 'loan');
   const freelanceText = await page.evaluate(() => (typeof SAMPLES !== 'undefined' && SAMPLES && SAMPLES.freelance) ? SAMPLES.freelance : '');
   ok(!!freelanceText, 'SAMPLES.freelance available');
   await page.fill('#t', freelanceText);
