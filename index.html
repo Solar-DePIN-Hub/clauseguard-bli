@@ -1878,7 +1878,27 @@ async function anchor(){if(!last)return;if(!window.ethereum){$('aout').textConte
     }
 
     window.cgShowView = showView;
+    function cgSample(target) {
+      if (!pReport.querySelector('.hx-sample-banner')) {
+        var bn = document.createElement('div');
+        bn.className = 'hx-sample-banner';
+        bn.setAttribute('role', 'note');
+        bn.style.cssText = 'display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin:12px 0 16px;padding:10px 14px;border:1px dashed currentColor;border-radius:8px;font-size:14px;opacity:.95';
+        var sp = document.createElement('span');
+        sp.innerHTML = '<b>Sample report</b> &mdash; paste your own contract to check it.';
+        var bb = document.createElement('button');
+        bb.type = 'button'; bb.className = 'main'; bb.textContent = 'Analyze your contract';
+        bb.addEventListener('click', function () { showView('analyze'); var t = document.getElementById('t'); if (t) { t.value = ''; t.focus(); } });
+        bn.appendChild(sp); bn.appendChild(bb);
+        pReport.insertBefore(bn, res);
+      }
+      window.__cgSampleRun = true;
+      try { document.getElementById('ctype').value = ''; } catch (e) {}
+      document.getElementById('t').value = SAMPLES.rental;
+      Promise.resolve(window.run()).then(function () { window.__cgSampleRun = false; showView(target); }, function () { window.__cgSampleRun = false; });
+    }
     function showView(name) {
+      if ((name === 'report' || name === 'gate') && res && res.hidden && typeof SAMPLES !== 'undefined' && SAMPLES.rental) { cgSample(name); return; }
       if (name === 'gate') {
         if (res && res.hidden) {
           showView('analyze');
@@ -1967,7 +1987,7 @@ async function anchor(){if(!last)return;if(!window.ethereum){$('aout').textConte
 
 </script>
 <script>
-(function(){var r=window.run;window.run=async function(){var x=await r.apply(this,arguments);if(window.cgShowView&&!document.getElementById('res').hidden)window.cgShowView('report');return x;};})();
+(function(){var r=window.run;window.run=async function(){var x=await r.apply(this,arguments);if(!window.__cgSampleRun){var sb=document.querySelector('.hx-sample-banner');if(sb)sb.remove();}if(window.cgShowView&&!document.getElementById('res').hidden)window.cgShowView('report');return x;};})();
 </script>
 <script>document.addEventListener('click',function(e){var b=e.target.closest('.hx-step[data-view],.hx-get[data-view],a[data-view]');if(b&&window.cgShowView){if(b.tagName==='A')e.preventDefault();window.cgShowView(b.dataset.view);}});</script>
 <script>
