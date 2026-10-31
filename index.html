@@ -1033,6 +1033,51 @@ body[data-view="home"] .hx-hero{
 .hx-hero .hx-stamp{left:auto;right:22px;bottom:18px;transform-origin:center}
 @keyframes hxStampIn2{from{opacity:0;transform:rotate(-8deg) scale(1.7)}to{opacity:1;transform:rotate(-8deg) scale(1)}}
 @media (max-width:700px){.hx-hero .hx-clause{grid-template-columns:20px minmax(0,1fr)}.hx-hero .hx-note{grid-column:2;grid-row:2;max-width:none;margin-top:4px}}
+.hx-hero .hx-left{max-width:680px}
+.hx-hero .hx-status{margin-bottom:14px;padding-bottom:8px}
+.hx-hero h1{margin:0 0 10px;font-size:clamp(2rem,4.4vw,2.9rem);line-height:1.02}
+.hx-hero .lead{margin:0 0 18px;font-size:.98rem;line-height:1.55}
+.hx-hero .hx-cta{margin:20px 0 18px}
+.hx-hero .hx-steps{display:flex;align-items:stretch;gap:8px;margin:0 0 16px}
+.hx-hero .hx-step{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:5px;padding:10px 12px;background:transparent;border:1px solid var(--line);border-radius:2px;color:var(--ink);cursor:pointer;font-family:var(--sans);text-align:left;transition:border-color .15s ease,background .15s ease}
+.hx-hero .hx-step:hover{border-color:var(--line-strong);background:rgba(20,20,20,.03)}
+.hx-hero .hx-step:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
+.hx-hero .hx-step-no{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;color:var(--ink);opacity:.6}
+.hx-hero .hx-step-ic{width:18px;height:18px;color:var(--ink);opacity:.85}
+.hx-hero .hx-step-t{font-weight:600;font-size:.82rem;line-height:1.25}
+.hx-hero .hx-step-c{font-size:.7rem;line-height:1.3;opacity:.72}
+.hx-hero .hx-step-arrow{align-self:center;color:var(--ink);opacity:.4;font-size:.9rem;user-select:none}
+.hx-hero .hx-getline{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;margin:0 0 14px}
+.hx-hero .hx-getlabel{font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;opacity:.6;margin-right:4px}
+.hx-hero .hx-get{min-height:44px;display:inline-flex;align-items:center;padding:0 2px;background:transparent;border:0;border-bottom:1px solid transparent;color:var(--ink);font-family:var(--sans);font-size:.82rem;cursor:pointer;transition:border-color .15s ease}
+.hx-hero .hx-get:hover{border-bottom-color:var(--line-strong)}
+.hx-hero .hx-get:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
+.hx-hero .hx-getdot{color:var(--ink);opacity:.4;font-size:.8rem;user-select:none}
+.hx-hero .hx-powered{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;padding:8px 12px;border:1px solid var(--line);border-radius:2px;margin:0 0 16px}
+.hx-hero .hx-powered-label{font-family:var(--mono);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;opacity:.55}
+.hx-hero .hx-powered-item{font-family:var(--mono);font-size:.68rem;letter-spacing:.04em;color:var(--ink)}
+.hx-hero .hx-powered-dot{color:var(--ink);opacity:.4;font-size:.7rem;user-select:none}
+.hx-hero #pills{margin-top:2px}
+@media (max-width:520px){
+  .hx-hero .hx-steps{gap:6px}
+  .hx-hero .hx-step{padding:8px 8px;gap:4px}
+  .hx-hero .hx-step-c{display:none}
+  .hx-hero .hx-step-t{font-size:.72rem}
+  .hx-hero .hx-step-arrow{font-size:.8rem}
+  .hx-hero .hx-getline{gap:4px 2px}
+  .hx-hero .hx-get{font-size:.76rem;padding:0 1px}
+  .hx-hero .hx-powered{gap:4px 6px;padding:7px 10px}
+}
+
+.hx-hero #pills{display:none}
+.hx-hero .hx-status{margin-bottom:10px}
+.hx-hero .lead{margin-bottom:10px;font-size:.95rem;line-height:1.5}
+.hx-hero .hx-cta{margin:14px 0 14px}
+.hx-hero .hx-steps{margin-bottom:10px}
+.hx-hero .hx-step{padding:8px 10px;gap:3px}
+.hx-hero .hx-getline{gap:0 2px;margin-bottom:10px}
+.hx-hero .hx-get{font-size:.78rem}
+@media (max-width:700px){html,body{overflow:auto!important;height:auto!important}.hx-hero{display:flex!important;flex-direction:column}.hx-hero .hx-left{order:2}.hx-hero .hx-right{order:1}.hx-hero .hx-nav{order:0}}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1061,6 +1106,50 @@ body[data-view="home"] .hx-hero{
     <div class="hx-cta">
       <button class="main" type="button" onclick="load('rental')">Run a sample lease</button>
       <a class="hx-ghost" href="#t">How the check works</a>
+    </div>
+    <div class="hx-steps" role="list">
+      <button type="button" class="hx-step" data-view="analyze" role="listitem">
+        <span class="hx-step-no">01</span>
+        <svg class="hx-step-ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6v4H9zM9 7H5v14h14V7h-4"/><path d="M12 11v6M9 14h6"/></svg>
+        <span class="hx-step-t">Paste or upload</span>
+        <span class="hx-step-c">Drop a contract in</span>
+      </button>
+      <span class="hx-step-arrow" aria-hidden="true">→</span>
+      <button type="button" class="hx-step" data-view="how" role="listitem">
+        <span class="hx-step-no">02</span>
+        <svg class="hx-step-ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16M4 10h16M4 15h10"/><path d="M14 19l2 2 4-4"/></svg>
+        <span class="hx-step-t">Clause-by-clause check</span>
+        <span class="hx-step-c">With law citations</span>
+      </button>
+      <span class="hx-step-arrow" aria-hidden="true">→</span>
+      <button type="button" class="hx-step" data-view="gate" role="listitem">
+        <span class="hx-step-no">03</span>
+        <svg class="hx-step-ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+        <span class="hx-step-t">Score + gate</span>
+        <span class="hx-step-c">On-chain via CRE</span>
+      </button>
+    </div>
+    <div class="hx-getline">
+      <span class="hx-getlabel">You get</span>
+      <button type="button" class="hx-get" data-view="report">Risk score &amp; grade</button>
+      <span class="hx-getdot" aria-hidden="true">·</span>
+      <button type="button" class="hx-get" data-view="report">Flagged clauses with sources</button>
+      <span class="hx-getdot" aria-hidden="true">·</span>
+      <button type="button" class="hx-get" data-view="report">Fairer wording</button>
+      <span class="hx-getdot" aria-hidden="true">·</span>
+      <button type="button" class="hx-get" data-view="report">Lawyer questions</button>
+      <span class="hx-getdot" aria-hidden="true">·</span>
+      <button type="button" class="hx-get" data-view="gate">On-chain proof</button>
+    </div>
+    <div class="hx-powered">
+      <span class="hx-powered-label">Powered by</span>
+      <span class="hx-powered-item">Chainlink CRE</span>
+      <span class="hx-powered-dot" aria-hidden="true">·</span>
+      <span class="hx-powered-item">EUR-Lex</span>
+      <span class="hx-powered-dot" aria-hidden="true">·</span>
+      <span class="hx-powered-item">GLEIF</span>
+      <span class="hx-powered-dot" aria-hidden="true">·</span>
+      <span class="hx-powered-item">Sepolia</span>
     </div>
     <div id="pills">
       <span id="pillRules" class="pill neutral">Ruleset · 93/13/EEC · 2011/83/EU · 2008/48/EC · 2011/7/EU · GDPR 2016/679</span>
@@ -1443,4 +1532,5 @@ async function anchor(){if(!last)return;if(!window.ethereum){$('aout').textConte
 <script>
 (function(){var r=window.run;window.run=async function(){var x=await r.apply(this,arguments);if(window.cgShowView&&!document.getElementById('res').hidden)window.cgShowView('report');return x;};})();
 </script>
+<script>document.addEventListener('click',function(e){var b=e.target.closest('.hx-step[data-view],.hx-get[data-view]');if(b&&window.cgShowView){window.cgShowView(b.dataset.view);}});</script>
 </body></html>
