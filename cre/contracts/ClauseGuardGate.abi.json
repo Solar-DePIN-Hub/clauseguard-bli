@@ -1,0 +1,463 @@
+[
+ {
+  "inputs": [
+   {
+    "internalType": "address",
+    "name": "registry_",
+    "type": "address"
+   }
+  ],
+  "stateMutability": "nonpayable",
+  "type": "constructor"
+ },
+ {
+  "inputs": [],
+  "name": "AlreadyReleased",
+  "type": "error"
+ },
+ {
+  "inputs": [],
+  "name": "BadDeal",
+  "type": "error"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "bytes32",
+    "name": "docHash",
+    "type": "bytes32"
+   }
+  ],
+  "name": "NeedsLawyer",
+  "type": "error"
+ },
+ {
+  "inputs": [],
+  "name": "NotLawyer",
+  "type": "error"
+ },
+ {
+  "inputs": [],
+  "name": "NotOwner",
+  "type": "error"
+ },
+ {
+  "inputs": [],
+  "name": "NotParty",
+  "type": "error"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "bytes32",
+    "name": "docHash",
+    "type": "bytes32"
+   }
+  ],
+  "name": "NotReviewed",
+  "type": "error"
+ },
+ {
+  "inputs": [],
+  "name": "StaleReport",
+  "type": "error"
+ },
+ {
+  "inputs": [],
+  "name": "TransferFailed",
+  "type": "error"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": true,
+    "internalType": "bytes32",
+    "name": "docHash",
+    "type": "bytes32"
+   },
+   {
+    "indexed": true,
+    "internalType": "address",
+    "name": "producer",
+    "type": "address"
+   },
+   {
+    "indexed": true,
+    "internalType": "address",
+    "name": "offtaker",
+    "type": "address"
+   },
+   {
+    "indexed": false,
+    "internalType": "uint256",
+    "name": "escrow",
+    "type": "uint256"
+   }
+  ],
+  "name": "DealOpened",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": true,
+    "internalType": "bytes32",
+    "name": "docHash",
+    "type": "bytes32"
+   },
+   {
+    "indexed": true,
+    "internalType": "bytes32",
+    "name": "reportHash",
+    "type": "bytes32"
+   },
+   {
+    "indexed": true,
+    "internalType": "address",
+    "name": "lawyer",
+    "type": "address"
+   }
+  ],
+  "name": "LawyerApproved",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": true,
+    "internalType": "address",
+    "name": "who",
+    "type": "address"
+   },
+   {
+    "indexed": false,
+    "internalType": "bool",
+    "name": "ok",
+    "type": "bool"
+   }
+  ],
+  "name": "LawyerSet",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": true,
+    "internalType": "bytes32",
+    "name": "docHash",
+    "type": "bytes32"
+   },
+   {
+    "indexed": true,
+    "internalType": "address",
+    "name": "offtaker",
+    "type": "address"
+   },
+   {
+    "indexed": false,
+    "internalType": "uint256",
+    "name": "amount",
+    "type": "uint256"
+   }
+  ],
+  "name": "Refunded",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": true,
+    "internalType": "bytes32",
+    "name": "docHash",
+    "type": "bytes32"
+   },
+   {
+    "indexed": true,
+    "internalType": "address",
+    "name": "producer",
+    "type": "address"
+   },
+   {
+    "indexed": false,
+    "internalType": "uint256",
+    "name": "amount",
+    "type": "uint256"
+   }
+  ],
+  "name": "Released",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": true,
+    "internalType": "bytes32",
+    "name": "docHash",
+    "type": "bytes32"
+   },
+   {
+    "indexed": true,
+    "internalType": "address",
+    "name": "signer",
+    "type": "address"
+   }
+  ],
+  "name": "Signed",
+  "type": "event"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "bytes32",
+    "name": "docHash",
+    "type": "bytes32"
+   },
+   {
+    "internalType": "bytes32",
+    "name": "reportHash",
+    "type": "bytes32"
+   }
+  ],
+  "name": "approve",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "bytes32",
+    "name": "",
+    "type": "bytes32"
+   }
+  ],
+  "name": "approvedBy",
+  "outputs": [
+   {
+    "internalType": "address",
+    "name": "",
+    "type": "address"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "bytes32",
+    "name": "",
+    "type": "bytes32"
+   }
+  ],
+  "name": "deals",
+  "outputs": [
+   {
+    "internalType": "address",
+    "name": "producer",
+    "type": "address"
+   },
+   {
+    "internalType": "address",
+    "name": "offtaker",
+    "type": "address"
+   },
+   {
+    "internalType": "uint256",
+    "name": "escrow",
+    "type": "uint256"
+   },
+   {
+    "internalType": "bool",
+    "name": "producerSigned",
+    "type": "bool"
+   },
+   {
+    "internalType": "bool",
+    "name": "offtakerSigned",
+    "type": "bool"
+   },
+   {
+    "internalType": "bool",
+    "name": "released",
+    "type": "bool"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "address",
+    "name": "",
+    "type": "address"
+   }
+  ],
+  "name": "isLawyer",
+  "outputs": [
+   {
+    "internalType": "bool",
+    "name": "",
+    "type": "bool"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "bytes32",
+    "name": "",
+    "type": "bytes32"
+   }
+  ],
+  "name": "lawyerApproval",
+  "outputs": [
+   {
+    "internalType": "bytes32",
+    "name": "",
+    "type": "bytes32"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "bytes32",
+    "name": "docHash",
+    "type": "bytes32"
+   },
+   {
+    "internalType": "address",
+    "name": "producer",
+    "type": "address"
+   }
+  ],
+  "name": "openDeal",
+  "outputs": [],
+  "stateMutability": "payable",
+  "type": "function"
+ },
+ {
+  "inputs": [],
+  "name": "owner",
+  "outputs": [
+   {
+    "internalType": "address",
+    "name": "",
+    "type": "address"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "bytes32",
+    "name": "docHash",
+    "type": "bytes32"
+   }
+  ],
+  "name": "refund",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+ },
+ {
+  "inputs": [],
+  "name": "registry",
+  "outputs": [
+   {
+    "internalType": "contract IClauseGuardRegistry",
+    "name": "",
+    "type": "address"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "bytes32",
+    "name": "docHash",
+    "type": "bytes32"
+   }
+  ],
+  "name": "release",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "address",
+    "name": "who",
+    "type": "address"
+   },
+   {
+    "internalType": "bool",
+    "name": "ok",
+    "type": "bool"
+   }
+  ],
+  "name": "setLawyer",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "bytes32",
+    "name": "docHash",
+    "type": "bytes32"
+   }
+  ],
+  "name": "sign",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "bytes32",
+    "name": "docHash",
+    "type": "bytes32"
+   }
+  ],
+  "name": "status",
+  "outputs": [
+   {
+    "internalType": "bool",
+    "name": "reviewed",
+    "type": "bool"
+   },
+   {
+    "internalType": "bool",
+    "name": "needsLawyer",
+    "type": "bool"
+   },
+   {
+    "internalType": "bool",
+    "name": "cleared",
+    "type": "bool"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ }
+]
