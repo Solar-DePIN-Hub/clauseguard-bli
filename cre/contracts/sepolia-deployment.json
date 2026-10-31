@@ -1,0 +1,51 @@
+{
+  "chainId": 11155111,
+  "registry": "0x6816438fa8b35324cf8916736f41e134757f4934",
+  "gate": "0x1ede66c3a69171aea78fc1559e7ed10ee2eda62f",
+  "deployer": "0x25A80e173620bD76Ee64171DeA1A853914872372",
+  "docHash": "0xdb29e85e563130cde9f31c0719d38b72cae73e3360b66e5337785ede905af16b",
+  "reportHash": "0x769bdefc878b810f3895a8a6b8bc76f6c05a95a77e5f5571c2deef0033b2a1fb",
+  "txs": [
+    {
+      "label": "registry",
+      "hash": "0x4351148c912a6bce8401c49bb3a55b767e121002adc95a3985042dbe2b12dcc0",
+      "status": "success"
+    },
+    {
+      "label": "gate",
+      "hash": "0x724bccd7572d4edda3caa2f7fad2126d9a43b0689c5b7331f9543f23776c613c",
+      "status": "success"
+    },
+    {
+      "label": "onReport",
+      "hash": "0xd4bf8727c906726450664ecf5b9dda48df3e300ca3cbeb153a56f4b5e0faa68d",
+      "status": "success"
+    },
+    {
+      "label": "setLawyer",
+      "hash": "0x46b47acf7fd993af9eab984ea531e302b476e6661ef6c21ec81e0b86e8341cda",
+      "status": "success"
+    },
+    {
+      "label": "openDeal",
+      "hash": "0xd22b85bd32f35ca0258d8978f51eb01be8d1360aa97e4894cbcebbe593edbffd",
+      "status": "success"
+    },
+    {
+      "label": "signRefusal",
+      "hash": "0x67f3488953d856fb5ab6d5ef7619180be87e58f20ec1af4d0da58de327584b5b",
+      "status": "reverted"
+    },
+    {
+      "label": "approve",
+      "hash": "0x5fcf181c9239a8badb92a509bf614dd82da9c8a6023393361f51fb8b558d0b8e",
+      "status": "success"
+    },
+    {
+      "label": "sign",
+      "hash": "0x559936b6d54361214e0e633bff43db1f6b0b97cd4cff5b235434e7f4274190d1",
+      "status": "success"
+    }
+  ],
+  "note": "forwarder = deployer for demo; production uses Chainlink KeystoneForwarder"
+}

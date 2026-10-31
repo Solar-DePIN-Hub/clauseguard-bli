@@ -23,13 +23,13 @@ The engine auto-detects the contract type and applies the relevant rules:
 - Energy-sharing
 - Tokenized revenue share
 
-*Origin story: Solar PPA support started with Solar DePIN Hub (Ukraine), where households sign long-term energy contracts without legal counsel.*
+*Origin story: Solar PPA support started with Solar DePIN Hub, where households sign long-term energy contracts without legal counsel.*
 
 ## Key Features
 - **Explainable & Deterministic:** 35 rules in `clauseguard-rules-3.0.0`. No black-box AI. Every finding cites the exact sentence and legal basis.
 - **Live Legal Context:** Integrates with EUR-Lex to verify the in-force status of cited laws (e.g., Directive 93/13/EEC, GDPR, MiCA).
 - **Privacy-First:** Contract text never leaves the browser. Only SHA-256 hashes and metadata are written on-chain.
-- **On-Chain Enforcement:** A Chainlink CRE workflow writes a signed report to ClauseGuardRegistry (Sepolia deployment pending). A smart contract (`ClauseGuardGate.sol`) blocks signing or escrow release until a lawyer approves the specific report hash.
+- **On-Chain Enforcement:** A Chainlink CRE workflow writes a signed report to ClauseGuardRegistry. A smart contract (`ClauseGuardGate.sol`) blocks signing or escrow release until a lawyer approves the specific report hash.
 
 ## How It Works
 
@@ -40,7 +40,7 @@ The engine auto-detects the contract type and applies the relevant rules:
 | Proof | `docHash = sha256(text)`. `reportHash = sha256(canonical JSON {docHash, ruleset, score, grade, findings})`. Deterministic across machines. |
 | `index.html` | Runs entirely in the browser. Highlights risky sentences. Exports Markdown/JSON. Simulates on-chain enforcement logic locally. |
 | `api/review.js` | Stateless serverless API for AI agents and CRE workflows. Nothing is stored. |
-| `cre/` | Chainlink CRE workflow. DON nodes call the API with consensus, re-hash the text, check external legal data (EUR-Lex, GLEIF), and write a signed report to `ClauseGuardRegistry` (Sepolia deployment pending). |
+| `cre/` | Chainlink CRE workflow. DON nodes call the API with consensus, re-hash the text, check external legal data (EUR-Lex, GLEIF), and write a signed report to `ClauseGuardRegistry`. |
 
 ## Architecture
 
@@ -59,6 +59,22 @@ flowchart LR
   ClauseGuardGate --> sign / escrow release blocked or allowed
   Lawyer approve --> ClauseGuardGate
 ```
+
+## Live on Sepolia (testnet)
+
+- Registry: [0x6816438fa8b35324cf8916736f41e134757f4934](https://sepolia.etherscan.io/address/0x6816438fa8b35324cf8916736f41e134757f4934)
+- Gate: [0x1ede66c3a69171aea78fc1559e7ed10ee2eda62f](https://sepolia.etherscan.io/address/0x1ede66c3a69171aea78fc1559e7ed10ee2eda62f)
+
+| Step | Tx | Result |
+|---|---|---|
+| 1 Report written (score 29, needsLawyer=true) | [0xd4bf8727c906726450664ecf5b9dda48df3e300ca3cbeb153a56f4b5e0faa68d](https://sepolia.etherscan.io/tx/0xd4bf8727c906726450664ecf5b9dda48df3e300ca3cbeb153a56f4b5e0faa68d) | success |
+| 2 Lawyer registered | [0x46b47acf7fd993af9eab984ea531e302b476e6661ef6c21ec81e0b86e8341cda](https://sepolia.etherscan.io/tx/0x46b47acf7fd993af9eab984ea531e302b476e6661ef6c21ec81e0b86e8341cda) | success |
+| 3 Deal opened | [0xd22b85bd32f35ca0258d8978f51eb01be8d1360aa97e4894cbcebbe593edbffd](https://sepolia.etherscan.io/tx/0xd22b85bd32f35ca0258d8978f51eb01be8d1360aa97e4894cbcebbe593edbffd) | success |
+| 4 Sign before lawyer approval | [0x67f3488953d856fb5ab6d5ef7619180be87e58f20ec1af4d0da58de327584b5b](https://sepolia.etherscan.io/tx/0x67f3488953d856fb5ab6d5ef7619180be87e58f20ec1af4d0da58de327584b5b) | reverted NeedsLawyer (expected) |
+| 5 Lawyer approves exact reportHash | [0x5fcf181c9239a8badb92a509bf614dd82da9c8a6023393361f51fb8b558d0b8e](https://sepolia.etherscan.io/tx/0x5fcf181c9239a8badb92a509bf614dd82da9c8a6023393361f51fb8b558d0b8e) | success |
+| 6 Sign after approval | [0x559936b6d54361214e0e633bff43db1f6b0b97cd4cff5b235434e7f4274190d1](https://sepolia.etherscan.io/tx/0x559936b6d54361214e0e633bff43db1f6b0b97cd4cff5b235434e7f4274190d1) | success |
+
+> Note: In this demo the deployer stands in for the Chainlink KeystoneForwarder; in production the Registry accepts reports only from the CRE forwarder. Reproduce: `cd cre/contracts && SEPOLIA_DEPLOYER_PK=... node deploy-sepolia.mjs`.
 
 ### On-Chain Enforcement (`ClauseGuardGate.sol`)
 - **Action Contract:** Reads the latest review from `ClauseGuardRegistry`.
@@ -130,7 +146,10 @@ node e2e/types.cjs                                     # 16 checks
 
 ## Limits (honest)
 - Rules are keyword and pattern-based. They can miss clauses written in unusual words.
-- English only for now. Ukrainian and Polish rule packs are next.
-- **Sepolia deployment and CRE CLI simulation: pending.**
+- English only for now. More language rule packs (e.g. Polish) are next.
+- **Sepolia deployment:** Done (see above).
+- **CRE CLI simulation:** Pending (`cre workflow simulate` requires a CRE account login; workflow unit tests 13/13 pass locally).
 
-Author: Vadym, Solar DePIN Hub (Ukraine). License: MIT.
+Author: Vadym, solo developer, Solar DePIN Hub.
+Built by a solo developer whose AI agents run on our own solar-powered GPU server.
+License: MIT.

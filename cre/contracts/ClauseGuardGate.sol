@@ -107,7 +107,7 @@ contract ClauseGuardGate {
         Deal storage d = deals[docHash];
         if (d.producer == address(0)) revert BadDeal();
         if (msg.sender != d.producer && msg.sender != d.offtaker) revert NotParty();
-        (bool reviewed, bool needsLawyer, bool cleared) = status(docHash);
+        (bool reviewed, , bool cleared) = status(docHash);
         if (!reviewed) revert NotReviewed(docHash);
         if (!cleared) revert NeedsLawyer(docHash);
         if (msg.sender == d.producer) {
@@ -124,7 +124,7 @@ contract ClauseGuardGate {
         if (msg.sender != d.offtaker) revert NotParty();
         if (d.released) revert AlreadyReleased();
         if (!(d.producerSigned && d.offtakerSigned)) revert BadDeal();
-        (bool reviewed, bool needsLawyer, bool cleared) = status(docHash);
+        (bool reviewed, , bool cleared) = status(docHash);
         if (!reviewed) revert NotReviewed(docHash);
         if (!cleared) revert NeedsLawyer(docHash);
         uint256 amount = d.escrow;
