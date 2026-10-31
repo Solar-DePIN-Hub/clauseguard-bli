@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ClauseGuard — contract risk check for solar PPAs & tokenized energy</title>
-<meta name="description" content="Private, explainable first-pass review of solar PPAs, energy-sharing and tokenized revenue-share contracts, with a verifiable report hash.">
+<title>ClauseGuard — AI legal check for everyday contracts</title>
+<meta name="description" content="Private, explainable first-pass review of everyday contracts (leases, freelance, SaaS, loans, solar PPAs), with a verifiable report hash.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
 <style>
 :root{--bg:#0b1220;--card:#111a2e;--line:#24314d;--ink:#e6ebf5;--mut:#93a0b8;--hi:#ef4444;--me:#f59e0b;--lo:#38bdf8;--ok:#22c55e;--acc:#fbbf24}
@@ -23,20 +23,28 @@ code,.hash{font:12px ui-monospace,monospace;word-break:break-all;color:#cbd5e1}.
 details summary{cursor:pointer;color:var(--mut)}footer{color:var(--mut);font-size:.85rem;padding:20px 0}
 input[type=text]{width:100%;background:#0a1020;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px;font:12px ui-monospace,monospace}
 a{color:var(--acc)}
+.pill.ok{color:var(--ok);border-color:var(--ok)}.pill.hi{color:var(--hi);border-color:var(--hi)}.pill.neutral{color:var(--mut);border-color:var(--line)}
+.lawrow{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line)}.lawrow:last-child{border-bottom:0}
+.lawrow .nm{font-weight:600}.lawrow .st{font-size:.82rem}.lawrow .dt{font-size:.82rem;color:var(--mut)}
+select{background:#0a1020;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.9rem}
+#disc{border-left:5px solid var(--me);background:#1a1508;border-radius:10px;padding:12px 14px;margin:12px 0;color:#fcd34d}
 </style></head><body><div class="wrap">
-<h1>⚖️ ClauseGuard <small>first-pass contract check for small solar producers</small></h1>
-<p class="lead">Paste a rooftop solar <b>PPA</b>, an <b>energy-sharing</b> agreement or <b>tokenized revenue-share</b> terms. ClauseGuard finds missing and one-sided clauses, quotes the sentence that triggered each finding, explains why it matters with the legal source, and gives you the question to ask a lawyer. The review runs <b>in your browser</b>. You get a SHA-256 fingerprint of the document and of the report that anyone can re-check or anchor on-chain.</p>
-<div><span class="pill">17 rules · v2.0</span><span class="pill">deterministic & explainable</span><span class="pill">no upload, no account</span><span class="pill">public API for agents</span><span class="pill">Chainlink CRE workflow</span></div>
+<h1>⚖️ ClauseGuard <small>AI legal check for everyday contracts</small></h1>
+<p class="lead">Check a <b>rental lease</b>, a <b>freelance/service</b> contract, <b>subscription (SaaS)</b> terms, a <b>consumer loan</b> or a <b>solar power purchase agreement</b>. ClauseGuard finds missing and one-sided clauses, quotes the sentence that triggered each finding, cites the law, and only hashes go on-chain. Chainlink CRE enforces "needs lawyer" before signing or payment.</p>
+<div id="pills"><span class="pill" id="pillRules"></span><span class="pill">explainable &amp; cited</span><span class="pill">private: only hashes on-chain</span><span class="pill">Chainlink CRE + on-chain action gate</span><span class="pill">public API for agents</span></div>
 
 <div class="card">
-<div class="row"><b>Try a sample:</b><button onclick="load('risky')">⚠️ Risky rooftop PPA</button><button onclick="load('fair')">✅ Balanced PPA</button><button onclick="load('token')">🪙 Revenue-share token</button>
+<div class="row"><b>Try a sample:</b><button onclick="load('rental')">🏠 Risky apartment lease</button><button onclick="load('freelance')">💼 Risky freelance contract</button><button onclick="load('freelanceFair')">✅ Balanced freelance contract</button><button onclick="load('saas')">🔁 Subscription terms</button><button onclick="load('loan')">💳 Consumer loan</button><button onclick="load('risky')">☀️ Risky rooftop PPA</button><button onclick="load('fair')">✅ Balanced PPA</button><button onclick="load('token')">🪙 Revenue-share token</button>
 <label class="btn">📄 Open .txt<input type="file" accept=".txt,.md,text/plain" hidden onchange="openFile(this)"></label></div>
+<div class="row" style="margin-top:10px"><label for="ctype" class="k">Contract type</label>
+<select id="ctype"></select></div>
 <textarea id="t" placeholder="Paste contract text here…"></textarea>
 <div class="row"><button class="main" id="go" onclick="run()">Check contract</button><span class="k">Nothing is sent to a server. Not legal advice.</span></div>
 </div>
 
 <div id="res" hidden>
 <div class="card row" id="summary"></div>
+<div id="disc" hidden></div>
 <div class="grid">
  <div><div class="card"><h3 style="margin-top:0">Findings</h3><div id="findings"></div><details id="passedBox"><summary>Checks passed</summary><div id="passed"></div></details></div></div>
  <div>
@@ -49,36 +57,132 @@ a{color:var(--acc)}
    <h4>Anchor on-chain (optional)</h4><p class="k">With an EVM wallet (use a testnet like Sepolia), this sends a 0-value transaction to yourself with the report hash as data, a public timestamp that the reviewed version existed.</p>
    <button onclick="anchor()" id="anc">🔗 Anchor report hash</button><div id="aout" class="k"></div>
   </div>
+  <div class="card" id="gate">
+   <h3 style="margin-top:0">On-chain enforcement: ClauseGuardGate</h3>
+   <p class="k">The Chainlink CRE workflow writes this review to ClauseGuardRegistry. ClauseGuardGate refuses signing and escrow release while <code>needsLawyer</code> is set, until an approved lawyer approves this exact report hash. Below is an in-browser simulation of the same rules (no wallet, no transaction).</p>
+   <p class="k" style="margin-top:6px">The CRE workflow also checks, under DON consensus, that the cited EU acts are in force (EUR-Lex) and that the counterparty LEI is active (GLEIF); any problem sets <code>needsLawyer</code>.</p>
+   <div class="row" id="gstat"></div>
+   <div class="row" style="margin-top:6px">
+    <span class="pill" id="g1">Reviewed</span>
+    <span class="pill" id="g2">Lawyer approval</span>
+    <span class="pill" id="g3">Both parties signed</span>
+    <span class="pill" id="g4">Escrow released</span>
+   </div>
+   <div class="row" style="margin-top:8px">
+    <button id="gsign">Both parties sign</button>
+    <button id="gappr">Lawyer approves report hash</button>
+    <button id="grel">Release escrow (1.0 test ETH)</button>
+    <button id="greset">Reset</button>
+   </div>
+   <div id="glog" class="k" style="margin-top:8px;white-space:pre-wrap"></div>
+   <h4 style="margin-bottom:4px">Cited law, live from EUR-Lex</h4>
+   <div id="laws"></div>
+   <p class="k" style="margin-top:6px">The CRE workflow runs the same EUR-Lex query under DON consensus; if a cited act is no longer in force, <code>needsLawyer</code> is set on-chain.</p>
+  </div>
  </div>
 </div></div>
 
 <div class="card"><h3 style="margin-top:0">How it works</h3>
-<p class="k">1) The text is split into sentences. 2) 17 rules check for clauses a small producer needs (termination, metering, curtailment, force majeure, liability cap, data protection…) and for risky wording (unilateral changes, one-sided liability exclusions, uncapped termination fees, tokens without securities/KYC disclosure). Rules only run when relevant (e.g. token rules only when tokens or investors are mentioned). 3) Score = share of applicable checks passed, weighted by severity. 4) Hashes are computed with Web Crypto. The same engine is available as <code>POST /api/review</code> for AI agents and the Chainlink CRE workflow in the <a href="https://github.com/Solar-DePIN-Hub/clauseguard-bli">repo</a>.</p></div>
-<footer>ClauseGuard by Vadym · Solar DePIN Hub (Ukraine) · BLI Legal Tech Hackathon 2 · <b>Not legal advice</b>: a checklist to help you prepare for a lawyer, not replace one.</footer>
+<p class="k">1) The text is split into sentences. 2) <span id="howRules"></span> rules check for clauses a party needs (termination, metering, curtailment, force majeure, liability cap, data protection, payment terms…) and for risky wording (unilateral changes, one-sided liability exclusions, uncapped termination fees, tokens without securities/KYC disclosure). Rules only run when relevant (e.g. token rules only when tokens or investors are mentioned). 3) Score = share of applicable checks passed, weighted by severity. 4) Hashes are computed with Web Crypto. The same engine is available as <code>POST /api/review</code> for AI agents and the Chainlink CRE workflow in the <a href="https://github.com/Solar-DePIN-Hub/clauseguard-bli">repo</a>.</p></div>
+<footer>ClauseGuard by Vadym · BLI Legal Tech Hackathon 2 · <b>Not legal advice</b>: a checklist to help you prepare for a lawyer, not replace one.</footer>
 </div>
 <script src="rules.js"></script><script src="samples.js"></script><script>
 const $=id=>document.getElementById(id);let last=null;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function load(k){$('t').value=SAMPLES[k];run()}
+function load(k){$('ctype').value='';$('t').value=SAMPLES[k];run()}
 function openFile(i){const f=i.files[0];if(!f)return;f.text().then(x=>{$('t').value=x;run()})}
 async function sha(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
 async function run(){const txt=$('t').value;if(!txt.trim()){$('t').focus();return}
- const r=ClauseGuard.check(txt),dh=await sha(txt),rh=await sha(ClauseGuard.canonical(ClauseGuard.reportPayload(dh,r)));last={txt,r,dh,rh};
+ const r=ClauseGuard.check(txt,{type:$('ctype').value}),dh=await sha(txt),rh=await sha(ClauseGuard.canonical(ClauseGuard.reportPayload(dh,r)));last={txt,r,dh,rh};
  const col=r.score>=85?'var(--ok)':r.score>=50?'var(--me)':'var(--hi)';
+ const ctLabel=(r.contractType&&ClauseGuard.TYPES[r.contractType])?ClauseGuard.TYPES[r.contractType].label:'General contract';
  $('summary').innerHTML=`<div class="score" style="border:8px solid ${col}"><div>${r.score}<span>grade ${r.grade}</span></div></div>
- <div><div><b>Detected:</b> ${r.types.length?r.types.map(t=>`<span class="pill">${t.label}</span>`).join(''):'<span class="pill">general contract</span>'}</div>
+ <div><div><b>Contract type:</b> ${esc(ctLabel)}</div>
+ <div style="margin-top:6px"><b>Detected:</b> ${r.types.length?r.types.map(t=>`<span class="pill">${esc(t.label)}</span>`).join(''):'<span class="pill">general contract</span>'}</div>
  <div style="margin-top:6px"><span class="bad">● ${r.counts.high} high</span> &nbsp; <span style="color:var(--me)">● ${r.counts.med} medium</span> &nbsp; <span style="color:var(--lo)">● ${r.counts.low} low</span> &nbsp; <span class="ok">✓ ${r.counts.passed} passed</span> &nbsp; <span class="k">${r.words} words</span></div>
  <div class="k" style="margin-top:6px">${r.counts.high?'Do not sign before a lawyer has looked at the red items.':r.findings.length?'Mostly balanced. Check the remaining items.':'All applicable checks passed. Still have a lawyer read it.'}</div></div>`;
+ const disc=$('disc');
+ if(r.disclaimer){disc.hidden=false;disc.innerHTML='<b>Disclaimer:</b> '+esc(r.disclaimer)}else{disc.hidden=true;disc.innerHTML=''}
  $('findings').innerHTML=r.findings.length?r.findings.map(f=>`<div class="f ${f.level}"><h4>${esc(f.title)}<span class="tag ${f.level}">${f.level==='med'?'medium':f.level}</span> <span class="k">· ${esc(f.category)} · ${f.kind}</span></h4>
- <p>${esc(f.msg)}</p>${f.evidence?`<div class="q">“${esc(f.evidence)}”</div>`:''}<p class="k"><b>Why:</b> ${esc(f.why)}</p><p class="k"><b>Ask your lawyer:</b> ${esc(f.ask)}</p><p class="k"><b>Fairer wording:</b> ${esc(f.fix)}</p></div>`).join(''):'<p class="ok">No issues found.</p>';
+ <p>${esc(f.msg)}</p>${f.evidence?`<div class="q">“${esc(f.evidence)}”</div>`:''}<p class="k"><b>Why:</b> ${esc(f.why)}</p><p class="k"><b>Ask your lawyer:</b> ${esc(f.ask)}</p><p class="k"><b>Fairer wording:</b> ${esc(f.fix)}</p>${f.jurisdiction?`<p class="k"><b>Jurisdiction:</b> ${esc(f.jurisdiction)}</p>`:''}</div>`).join(''):'<p class="ok">No issues found.</p>';
  $('passed').innerHTML=r.passed.map(p=>`<div class="k">✓ ${esc(p.title)}${p.evidence?` — “${esc(p.evidence.slice(0,110))}${p.evidence.length>110?'…':''}”`:''}</div>`).join('');
  const ev=new Map(r.findings.filter(f=>f.evidence).map(f=>[f.evidence,f.title]));let html=esc(txt);
  for(const [s,t] of ev){html=html.split(esc(s)).join(`<mark title="${esc(t)}">${esc(s)}</mark>`)}$('doc').innerHTML=html;
  $('dh').textContent=dh;$('rh').textContent=rh;$('rs').textContent='Ruleset: '+r.ruleset;$('vout').textContent='';$('aout').textContent='';
- $('res').hidden=false;$('summary').scrollIntoView({behavior:'smooth'})}
+ $('res').hidden=false;$('summary').scrollIntoView({behavior:'smooth'});
+ gateReset();loadLaws()}
+const LAW_FALLBACK=[
+ {celex:'31993L0013',name:'Unfair Contract Terms Directive 93/13/EEC',inForce:true,date:null,url:'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:31993L0013'},
+ {celex:'32019L0944',name:'Electricity Directive (EU) 2019/944',inForce:true,date:null,url:'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32019L0944'},
+ {celex:'32016R0679',name:'GDPR (EU) 2016/679',inForce:true,date:null,url:'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32016R0679'},
+ {celex:'32023R1114',name:'MiCA (EU) 2023/1114',inForce:true,date:null,url:'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32023R1114'}
+];
+let lawsCache=null;
+function renderLaws(acts,note){
+ const box=$('laws');if(!box)return;
+ box.innerHTML=acts.map(a=>{
+  const st=a.inForce?'<span class="st ok">in force</span>':'<span class="st bad">NOT in force</span>';
+  const dt=a.date?`<span class="dt">${esc(a.date)}</span>`:'';
+  return `<div class="lawrow"><span class="nm">${esc(a.name)}</span>${st}${dt}<a href="${esc(a.url)}" target="_blank" rel="noopener">EUR-Lex ↗</a></div>`;
+ }).join('')+(note?`<p class="k" style="margin:6px 0 0">${esc(note)}</p>`:'');
+}
+async function loadLaws(){
+ if(lawsCache){renderLaws(lawsCache.acts,lawsCache.note||'');return}
+ try{
+  const resp=await fetch('/api/laws',{headers:{accept:'application/json'}});
+  if(!resp.ok)throw new Error('http '+resp.status);
+  const data=await resp.json();
+  lawsCache={acts:data.acts,note:'Live from '+esc(data.source||'EUR-Lex')+' · checked '+esc(data.checkedAt||'')};
+  renderLaws(lawsCache.acts,lawsCache.note);
+ }catch(e){
+  lawsCache={acts:LAW_FALLBACK,note:'checked by the CRE workflow at attestation time'};
+  renderLaws(lawsCache.acts,lawsCache.note);
+ }
+}
+let gate={approved:null,signed:false,released:false};
+function gateNeedsLawyer(){if(!last)return false;return (last.r.score<70||last.r.counts.high>0)}
+function gateLog(line){const el=$('glog');if(!el)return;el.textContent=(el.textContent?el.textContent+'\n':'')+line}
+function gatePill(id,cls){const el=$(id);if(!el)return;el.className='pill '+(cls||'neutral')}
+function gateRender(){
+ const needs=gateNeedsLawyer();
+ const cleared=!needs||gate.approved===last.rh;
+ const s1='ok',s2=cleared?'ok':'hi',s3=gate.signed?'ok':'neutral',s4=gate.released?'ok':'neutral';
+ gatePill('g1',s1);gatePill('g2',s2);gatePill('g3',s3);gatePill('g4',s4);
+ const st=$('gstat');
+ if(st){
+  const state=gate.released?'Escrow released':gate.signed?'Signed, awaiting release':cleared?'Cleared (lawyer approved or not required)':'Blocked by needsLawyer';
+  st.innerHTML=`<span class="k">Gate state: </span><b>${esc(state)}</b>`+(needs?` <span class="k">· needsLawyer = true (score ${last.r.score}, ${last.r.counts.high} high)</span>`:` <span class="k">· needsLawyer = false</span>`);
+ }
+}
+function gateReset(){gate={approved:null,signed:false,released:false};const el=$('glog');if(el)el.textContent='';gateRender()}
+function gateSign(){
+ if(!last)return;
+ if(gateNeedsLawyer()&&gate.approved!==last.rh){
+  const h=last.rh.slice(0,10);
+  gateLog('✗ sign() reverted: NeedsLawyer(0x'+h+'…)');
+  gateRender();return;
+ }
+ gate.signed=true;gateLog('✓ sign() ok: both parties signed');gateRender();
+}
+function gateApprove(){
+ if(!last)return;
+ gate.approved=last.rh;
+ gateLog('✓ approve() ok: lawyer approved report hash 0x'+last.rh.slice(0,10)+'…');gateRender();
+}
+function gateRelease(){
+ if(!last)return;
+ if(!gate.signed){gateLog('✗ release() reverted: NotSigned()');gateRender();return}
+ if(gateNeedsLawyer()&&gate.approved!==last.rh){gateLog('✗ release() reverted: NeedsLawyer(0x'+last.rh.slice(0,10)+'…)');gateRender();return}
+ gate.released=true;gateLog('✓ release() ok: escrow released (1.0 test ETH)');gateRender();
+}
+$('gsign').onclick=gateSign;
+$('gappr').onclick=gateApprove;
+$('grel').onclick=gateRelease;
+$('greset').onclick=gateReset;
 $('vh').oninput=()=>{const v=$('vh').value.trim().toLowerCase().replace(/^0x/,'');if(!last||!v){$('vout').textContent='';return}
  $('vout').innerHTML=v===last.dh?'<span class="ok">✓ Match: this is exactly the version that hash was made from.</span>':v===last.rh?'<span class="ok">✓ Match: this is the report hash for this text and ruleset.</span>':'<span class="bad">✗ No match: the text differs from the version behind that hash.</span>'};
-function md(){const {r,dh,rh}=last;return `# ClauseGuard report\n\nScore: ${r.score}/100 (grade ${r.grade})  \nDetected: ${r.types.map(t=>t.label).join(', ')||'general contract'}  \nRuleset: ${r.ruleset}  \nDocument SHA-256: ${dh}  \nReport SHA-256: ${rh}\n\n## Findings\n`+r.findings.map((f,i)=>`\n### ${i+1}. ${f.title} (${f.level})\n${f.msg}\n${f.evidence?`\n> ${f.evidence}\n`:''}\n- Why: ${f.why}\n- Ask your lawyer: ${f.ask}\n- Fairer wording: ${f.fix}\n`).join('')+`\n## Checks passed\n`+r.passed.map(p=>`- ${p.title}`).join('\n')+`\n\n_Not legal advice. Generated by ClauseGuard (https://clauseguard-bli.vercel.app)._\n`}
+function md(){const {r,dh,rh}=last;const ctLabel=(r.contractType&&ClauseGuard.TYPES[r.contractType])?ClauseGuard.TYPES[r.contractType].label:'General contract';
+ return `# ClauseGuard report\n\nScore: ${r.score}/100 (grade ${r.grade})  \nContract type: ${ctLabel}  \nDetected: ${r.types.map(t=>t.label).join(', ')||'general contract'}  \nRuleset: ${r.ruleset}  \nDocument SHA-256: ${dh}  \nReport SHA-256: ${rh}\n\n## Findings\n`+r.findings.map((f,i)=>`\n### ${i+1}. ${f.title} (${f.level})\n${f.msg}\n${f.evidence?`\n> ${f.evidence}\n`:''}\n- Why: ${f.why}\n- Ask your lawyer: ${f.ask}\n- Fairer wording: ${f.fix}\n${f.jurisdiction?`- Jurisdiction: ${f.jurisdiction}\n`:''}`).join('')+`\n## Checks passed\n`+r.passed.map(p=>`- ${p.title}`).join('\n')+`\n\n## Disclaimer\n${r.disclaimer||'—'}\n\n_Not legal advice. Generated by ClauseGuard (https://clauseguard-bli.vercel.app)._\n`}
 function dl(kind){if(!last)return;const data=kind==='md'?md():JSON.stringify({docHash:last.dh,reportHash:last.rh,...last.r},null,2);
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'text/plain'}));a.download='clauseguard-report.'+kind;a.click()}
 function copyQs(){if(!last)return;navigator.clipboard.writeText(last.r.findings.map((f,i)=>`${i+1}. ${f.ask}`).join('\n')).then(()=>{$('cq').textContent='✓ Copied';setTimeout(()=>$('cq').textContent='📋 Copy lawyer questions',1500)})}
@@ -87,4 +191,11 @@ async function anchor(){if(!last)return;if(!window.ethereum){$('aout').textConte
  const tx=await ethereum.request({method:'eth_sendTransaction',params:[{from,to:from,value:'0x0',data:'0x'+last.rh}]});
  const ex={'0xaa36a7':'https://sepolia.etherscan.io/tx/','0x1':'https://etherscan.io/tx/','0x14a34':'https://sepolia.basescan.org/tx/'}[chain];
  $('aout').innerHTML='Sent: '+(ex?`<a target="_blank" href="${ex}${tx}">${tx}</a>`:tx)}catch(e){$('aout').textContent='Not sent: '+(e.message||e)}}
+(function init(){
+ const n=ClauseGuard.RULES.length;
+ $('pillRules').textContent=n+' rules · v3';
+ $('howRules').textContent=n;
+ const sel=$('ctype');
+ sel.innerHTML='<option value="">Auto-detect</option>'+Object.keys(ClauseGuard.TYPES).map(k=>`<option value="${esc(k)}">${esc(ClauseGuard.TYPES[k].label)}</option>`).join('');
+})();
 </script></body></html>

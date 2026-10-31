@@ -23,6 +23,41 @@ token: `SOLAR REVENUE SHARE TOKEN TERMS (sample, fictional)
 2. Payouts are made monthly by a smart contract to the investor's wallet.
 3. The Issuer reserves the right to change the payout formula without notice.
 4. The Issuer will not be liable for any loss of tokens or payouts.
-5. These terms are governed by the laws of the Cayman Islands.`
+5. These terms are governed by the laws of the Cayman Islands.`,
+rental: `APARTMENT LEASE AGREEMENT (sample, fictional)
+1. The Landlord leases the apartment to the Tenant for a monthly rent of 900 EUR.
+2. The Landlord may enter the apartment at any time without notice.
+3. If the Tenant leaves early, the Tenant forfeits the entire security deposit.
+4. The Landlord reserves the right to change the rent at any time.
+5. The Tenant shall pay all utility bills.
+6. This Agreement is governed by the laws of Germany.`,
+freelance: `FREELANCE SERVICE AGREEMENT (sample, fictional)
+1. The Client shall pay the Contractor within 120 days of the invoice.
+2. All intellectual property including pre-existing tools and code created before this agreement transfers to the Client.
+3. The Contractor shall not work for any other client for 2 years.
+4. The Contractor delivers the website.
+5. This Agreement is governed by the laws of Poland.`,
+freelanceFair: `FREELANCE SERVICE AGREEMENT (sample, fictional)
+1. Payment. Invoices are payable within 30 days.
+2. IP. The Client owns the paid Deliverables; the Contractor keeps pre-existing materials and grants a non-exclusive licence to use them in the Deliverables.
+3. Acceptance. Deliverables are deemed accepted if no written, specific objection is received within 10 days.
+4. Liability. Each party's aggregate liability is capped at the fees paid in the previous 12 months, except for fraud or gross negligence.
+5. Disputes. Disputes go to mediation for 30 days, then to the courts of Warsaw. This Agreement is governed by the laws of Poland.
+6. Termination. Either party may terminate on 30 days' notice.
+7. Assignment. Either party may assign this Agreement to a successor with written notice.
+8. Force majeure. Force majeure includes war, grid failure and natural disasters; after 90 days either party may terminate.
+9. Data protection. Personal data is processed only for billing in line with the GDPR.`,
+saas: `SUBSCRIPTION TERMS (sample, fictional)
+1. The subscription automatically renews for 12 months unless written notice is sent 90 days before.
+2. The company may change the price at any time at its sole discretion.
+3. Customer data is stored by the provider.
+4. Disputes are resolved exclusively by binding arbitration and you waive any class action.
+5. This Agreement is governed by the laws of Delaware.`,
+loan: `CONSUMER LOAN AGREEMENT (sample, fictional)
+1. The Lender lends 2000 EUR to the Borrower.
+2. Interest is 4% per month.
+3. Default interest of 1% per day applies after any late payment.
+4. All amounts become immediately due after any late payment.
+5. This Agreement is governed by the laws of Delaware.`
 };
 if (typeof module !== 'undefined') module.exports = SAMPLES;
