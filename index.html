@@ -1542,7 +1542,7 @@ body[data-view="home"] .hx-hero{
     </p>
     <div class="hx-cta">
       <button class="main" type="button" onclick="load('rental')">Run a sample lease</button>
-      <a class="hx-ghost" href="#t">How the check works</a>
+      <a class="hx-ghost" href="#how" data-view="how">How the check works</a>
     </div>
     <div class="hx-steps" role="list">
       <button type="button" class="hx-step" data-view="analyze" role="listitem">
@@ -1946,7 +1946,7 @@ async function anchor(){if(!last)return;if(!window.ethereum){$('aout').textConte
     window.addEventListener('hashchange', function () {
       var h = location.hash.replace('#', '');
       if (h === '' || h === 'home') showView('home');
-      else if (VIEWS.indexOf(h) !== -1) showView(h);
+      else if (VIEWS.indexOf(h) !== -1 || h === 'gate') showView(h);
     });
 
     var mo = new MutationObserver(function (muts) {
@@ -1960,7 +1960,7 @@ async function anchor(){if(!last)return;if(!window.ethereum){$('aout').textConte
 
     var initial = location.hash.replace('#', '');
     if (initial === '' || initial === 'home') showView('home');
-    else if (VIEWS.indexOf(initial) !== -1) showView(initial);
+    else if (VIEWS.indexOf(initial) !== -1 || initial === 'gate') showView(initial);
     else showView('home');
   });
 })();
@@ -1969,7 +1969,7 @@ async function anchor(){if(!last)return;if(!window.ethereum){$('aout').textConte
 <script>
 (function(){var r=window.run;window.run=async function(){var x=await r.apply(this,arguments);if(window.cgShowView&&!document.getElementById('res').hidden)window.cgShowView('report');return x;};})();
 </script>
-<script>document.addEventListener('click',function(e){var b=e.target.closest('.hx-step[data-view],.hx-get[data-view]');if(b&&window.cgShowView){window.cgShowView(b.dataset.view);}});</script>
+<script>document.addEventListener('click',function(e){var b=e.target.closest('.hx-step[data-view],.hx-get[data-view],a[data-view]');if(b&&window.cgShowView){if(b.tagName==='A')e.preventDefault();window.cgShowView(b.dataset.view);}});</script>
 <script>
 (function(){
   function cgDial(){
