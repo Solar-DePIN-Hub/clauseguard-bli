@@ -13,7 +13,7 @@ const config = {
 	apiUrl: 'https://clauseguard-bli.vercel.app/api/review',
 	riskThreshold: 70,
 	sparqlUrl: 'https://publications.europa.eu/webapi/rdf/sparql',
-	citedCelex: ['31993L0013', '32019L0944', '32016R0679', '32023R1114'],
+	citedCelex: ['31993L0013', '32011L0083', '32008L0048', '32011L0007', '32016R0679', '32019L0944', '32023R1114'],
 	gleifUrl: 'https://api.gleif.org/api/v1/lei-records',
 	evms: [{ registryAddress: '0x000000000000000000000000000000000000dEaD', chainSelectorName: 'ethereum-testnet-sepolia', gasLimit: '300000' }],
 }
@@ -136,17 +136,17 @@ describe('clauseguard-attest', () => {
 	test('registers one HTTP-trigger handler', () => {
 		expect(initWorkflow(config)).toHaveLength(1)
 	})
-	test('fair PPA + all laws in force + no LEI -> needsLawyer false, lawInForce 4/4', () => {
+	test('fair PPA + all laws in force + no LEI -> needsLawyer false, lawInForce 7/7', () => {
 		const { out } = run(SAMPLES.fair)
 		expect(out.needsLawyer).toBe(false)
-		expect(out.lawInForce).toBe('4/4')
+		expect(out.lawInForce).toBe('7/7')
 		expect(out.counterparty).toBeNull()
 		expect(out.reasons).toHaveLength(0)
 	})
 	test('fair PPA but 32019L0944 repealed -> needsLawyer true, reason cited law not in force', () => {
 		const { out } = run(SAMPLES.fair, { repealed: ['32019L0944'] })
 		expect(out.needsLawyer).toBe(true)
-		expect(out.lawInForce).toBe('3/4')
+		expect(out.lawInForce).toBe('6/7')
 		expect(out.reasons.some((r: string) => r.includes('cited law not in force: 32019L0944'))).toBe(true)
 	})
 	test('fair PPA + LEI ACTIVE/ISSUED -> needsLawyer false and counterparty.legalName set', () => {
@@ -174,8 +174,8 @@ describe('clauseguard-attest', () => {
 		expect(() => onHttpTrigger(runtime, { input: enc(JSON.stringify({ text: SAMPLES.fair, counterpartyLei: 'abc' })) } as any)).toThrow('invalid LEI')
 	})
 	test('lawQuery contains every CELEX as a typed literal', () => {
-		const q = lawQuery(['31993L0013', '32019L0944', '32016R0679', '32023R1114'])
-		for (const c of ['31993L0013', '32019L0944', '32016R0679', '32023R1114']) {
+		const q = lawQuery(['31993L0013', '32011L0083', '32008L0048', '32011L0007', '32016R0679', '32019L0944', '32023R1114'])
+		for (const c of ['31993L0013', '32011L0083', '32008L0048', '32011L0007', '32016R0679', '32019L0944', '32023R1114']) {
 			expect(q).toContain(`"${c}"^^<http://www.w3.org/2001/XMLSchema#string>`)
 		}
 	})

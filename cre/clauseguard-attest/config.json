@@ -2,7 +2,7 @@
   "apiUrl": "https://clauseguard-bli.vercel.app/api/review",
   "riskThreshold": 70,
   "sparqlUrl": "https://publications.europa.eu/webapi/rdf/sparql",
-  "citedCelex": ["31993L0013", "32019L0944", "32016R0679", "32023R1114"],
+  "citedCelex": ["31993L0013", "32011L0083", "32008L0048", "32011L0007", "32016R0679", "32019L0944", "32023R1114"],
   "gleifUrl": "https://api.gleif.org/api/v1/lei-records",
   "evms": [
     { "registryAddress": "0x0000000000000000000000000000000000000000", "chainSelectorName": "ethereum-testnet-sepolia", "gasLimit": "300000" }

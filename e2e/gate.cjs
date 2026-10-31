@@ -68,7 +68,7 @@ function ok(cond, label) {
 
   // --- Laws fallback (file:// -> fetch fails -> 4 fallback rows) ---
   const lawRows = await page.$$eval('#laws .lawrow', els => els.length);
-  ok(lawRows === 4, 'laws: 4 rows rendered (fallback)');
+  ok(lawRows === 7, 'laws: 7 rows rendered (fallback)');
 
   // --- No page errors ---
   ok(pageErrors.length === 0, 'no pageerror events' + (pageErrors.length ? ' (' + pageErrors.join('; ') + ')' : ''));

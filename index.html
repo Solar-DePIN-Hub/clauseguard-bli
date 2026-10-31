@@ -1,5 +1,5 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ClauseGuard — AI legal check for everyday contracts</title>
+<title>ClauseGuard — Explainable legal check for everyday contracts</title>
 <meta name="description" content="Private, explainable first-pass review of everyday contracts (leases, freelance, SaaS, loans, solar PPAs), with a verifiable report hash.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
 <style>
@@ -29,7 +29,7 @@ a{color:var(--acc)}
 select{background:#0a1020;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.9rem}
 #disc{border-left:5px solid var(--me);background:#1a1508;border-radius:10px;padding:12px 14px;margin:12px 0;color:#fcd34d}
 </style></head><body><div class="wrap">
-<h1>⚖️ ClauseGuard <small>AI legal check for everyday contracts</small></h1>
+<h1>⚖️ ClauseGuard <small>Explainable legal check for everyday contracts</small></h1>
 <p class="lead">Check a <b>rental lease</b>, a <b>freelance/service</b> contract, <b>subscription (SaaS)</b> terms, a <b>consumer loan</b> or a <b>solar power purchase agreement</b>. ClauseGuard finds missing and one-sided clauses, quotes the sentence that triggered each finding, cites the law, and only hashes go on-chain. Chainlink CRE enforces "needs lawyer" before signing or payment.</p>
 <div id="pills"><span class="pill" id="pillRules"></span><span class="pill">explainable &amp; cited</span><span class="pill">private: only hashes on-chain</span><span class="pill">Chainlink CRE + on-chain action gate</span><span class="pill">public API for agents</span></div>
 
@@ -103,7 +103,7 @@ async function run(){const txt=$('t').value;if(!txt.trim()){$('t').focus();retur
  <div class="k" style="margin-top:6px">${r.counts.high?'Do not sign before a lawyer has looked at the red items.':r.findings.length?'Mostly balanced. Check the remaining items.':'All applicable checks passed. Still have a lawyer read it.'}</div></div>`;
  const disc=$('disc');
  if(r.disclaimer){disc.hidden=false;disc.innerHTML='<b>Disclaimer:</b> '+esc(r.disclaimer)}else{disc.hidden=true;disc.innerHTML=''}
- $('findings').innerHTML=r.findings.length?r.findings.map(f=>`<div class="f ${f.level}"><h4>${esc(f.title)}<span class="tag ${f.level}">${f.level==='med'?'medium':f.level}</span> <span class="k">· ${esc(f.category)} · ${f.kind}</span></h4>
+ $('findings').innerHTML=r.findings.length?r.findings.map(f=>`<div class="f ${esc(f.level)}"><h4>${esc(f.title)}<span class="tag ${esc(f.level)}">${f.level==='med'?'medium':esc(f.level)}</span> <span class="k">· ${esc(f.category)} · ${esc(f.kind)}</span></h4>
  <p>${esc(f.msg)}</p>${f.evidence?`<div class="q">“${esc(f.evidence)}”</div>`:''}<p class="k"><b>Why:</b> ${esc(f.why)}</p><p class="k"><b>Ask your lawyer:</b> ${esc(f.ask)}</p><p class="k"><b>Fairer wording:</b> ${esc(f.fix)}</p>${f.jurisdiction?`<p class="k"><b>Jurisdiction:</b> ${esc(f.jurisdiction)}</p>`:''}</div>`).join(''):'<p class="ok">No issues found.</p>';
  $('passed').innerHTML=r.passed.map(p=>`<div class="k">✓ ${esc(p.title)}${p.evidence?` — “${esc(p.evidence.slice(0,110))}${p.evidence.length>110?'…':''}”`:''}</div>`).join('');
  const ev=new Map(r.findings.filter(f=>f.evidence).map(f=>[f.evidence,f.title]));let html=esc(txt);
@@ -113,8 +113,11 @@ async function run(){const txt=$('t').value;if(!txt.trim()){$('t').focus();retur
  gateReset();loadLaws()}
 const LAW_FALLBACK=[
  {celex:'31993L0013',name:'Unfair Contract Terms Directive 93/13/EEC',inForce:true,date:null,url:'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:31993L0013'},
- {celex:'32019L0944',name:'Electricity Directive (EU) 2019/944',inForce:true,date:null,url:'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32019L0944'},
+ {celex:'32011L0083',name:'Consumer Rights Directive 2011/83/EU',inForce:true,date:null,url:'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32011L0083'},
+ {celex:'32008L0048',name:'Consumer Credit Directive 2008/48/EC',inForce:true,date:null,url:'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32008L0048'},
+ {celex:'32011L0007',name:'Late Payment Directive 2011/7/EU',inForce:true,date:null,url:'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32011L0007'},
  {celex:'32016R0679',name:'GDPR (EU) 2016/679',inForce:true,date:null,url:'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32016R0679'},
+ {celex:'32019L0944',name:'Electricity Directive (EU) 2019/944',inForce:true,date:null,url:'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32019L0944'},
  {celex:'32023R1114',name:'MiCA (EU) 2023/1114',inForce:true,date:null,url:'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32023R1114'}
 ];
 let lawsCache=null;

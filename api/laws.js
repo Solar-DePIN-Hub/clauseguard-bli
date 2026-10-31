@@ -1,9 +1,12 @@
-// GET /api/laws -> live EUR-Lex Cellar SPARQL status for the 4 cited acts.
+// GET /api/laws -> live EUR-Lex Cellar SPARQL status for the 7 cited acts.
 // Same query shape as the Chainlink CRE workflow. Stateless, no storage.
 const ACTS = [
   { celex: '31993L0013', name: 'Unfair Contract Terms Directive 93/13/EEC' },
-  { celex: '32019L0944', name: 'Electricity Directive (EU) 2019/944' },
+  { celex: '32011L0083', name: 'Consumer Rights Directive 2011/83/EU' },
+  { celex: '32008L0048', name: 'Consumer Credit Directive 2008/48/EC' },
+  { celex: '32011L0007', name: 'Late Payment Directive 2011/7/EU' },
   { celex: '32016R0679', name: 'GDPR (EU) 2016/679' },
+  { celex: '32019L0944', name: 'Electricity Directive (EU) 2019/944' },
   { celex: '32023R1114', name: 'MiCA (EU) 2023/1114' },
 ];
 
@@ -12,8 +15,11 @@ SELECT ?celex ?force ?date WHERE {
   ?w cdm:resource_legal_id_celex ?celex .
   FILTER(?celex IN (
     "31993L0013"^^<http://www.w3.org/2001/XMLSchema#string>,
-    "32019L0944"^^<http://www.w3.org/2001/XMLSchema#string>,
+    "32011L0083"^^<http://www.w3.org/2001/XMLSchema#string>,
+    "32008L0048"^^<http://www.w3.org/2001/XMLSchema#string>,
+    "32011L0007"^^<http://www.w3.org/2001/XMLSchema#string>,
     "32016R0679"^^<http://www.w3.org/2001/XMLSchema#string>,
+    "32019L0944"^^<http://www.w3.org/2001/XMLSchema#string>,
     "32023R1114"^^<http://www.w3.org/2001/XMLSchema#string>
   ))
   OPTIONAL { ?w cdm:resource_legal_in-force ?force }
