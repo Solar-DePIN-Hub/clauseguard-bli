@@ -2,37 +2,224 @@
 <title>ClauseGuard — Explainable legal check for everyday contracts</title>
 <meta name="description" content="Private, explainable first-pass review of everyday contracts (leases, freelance, SaaS, loans, solar PPAs), with a verifiable report hash.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
-<style>
-:root{--bg:#0b1220;--card:#111a2e;--line:#24314d;--ink:#e6ebf5;--mut:#93a0b8;--hi:#ef4444;--me:#f59e0b;--lo:#38bdf8;--ok:#22c55e;--acc:#fbbf24}
-*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
-.wrap{max-width:1100px;margin:auto;padding:24px 18px}h1{margin:0;font-size:2rem}h1 small{font-size:.9rem;color:var(--mut);font-weight:400}
-.lead{color:var(--mut);max-width:780px}.pill{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:2px 10px;font-size:.8rem;margin:2px;color:var(--mut)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0}
-textarea{width:100%;height:230px;background:#0a1020;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px;font:14px/1.45 ui-monospace,monospace}
-button,.btn{background:#1b2742;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px 14px;cursor:pointer;font-weight:600;margin:4px 4px 0 0;font-size:.9rem}
-button.main{background:var(--acc);color:#111;border:0;padding:10px 20px;font-size:1rem}button:disabled{opacity:.5;cursor:default}
-.row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}.grid{display:grid;grid-template-columns:1.25fr 1fr;gap:14px}@media(max-width:860px){.grid{grid-template-columns:1fr}}
-.score{width:120px;height:120px;border-radius:50%;display:grid;place-items:center;font-size:2rem;font-weight:800}
-.score span{display:block;font-size:.8rem;font-weight:500;color:var(--mut);text-align:center}
-.f{border-left:5px solid;border-radius:10px;background:#0d1528;padding:10px 12px;margin:10px 0}.f.high{border-color:var(--hi)}.f.med{border-color:var(--me)}.f.low{border-color:var(--lo)}
-.f h4{margin:0 0 4px;font-size:1rem}.tag{font-size:.72rem;padding:1px 8px;border-radius:99px;margin-left:6px;vertical-align:middle}.tag.high{background:#7f1d1d}.tag.med{background:#78350f}.tag.low{background:#0c4a6e}
-.q{background:#1e293b;border-radius:8px;padding:6px 10px;margin:6px 0;font-style:italic}.f p{margin:4px 0}.k{color:var(--mut);font-size:.82rem}
-.doc{white-space:pre-wrap;font:13px/1.6 ui-monospace,monospace;max-height:460px;overflow:auto;background:#0a1020;border-radius:10px;padding:10px}
-mark{background:#7f1d1d;color:#fff;border-radius:3px;padding:0 2px;cursor:help}
-code,.hash{font:12px ui-monospace,monospace;word-break:break-all;color:#cbd5e1}.ok{color:var(--ok)}.bad{color:var(--hi)}
-details summary{cursor:pointer;color:var(--mut)}footer{color:var(--mut);font-size:.85rem;padding:20px 0}
-input[type=text]{width:100%;background:#0a1020;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px;font:12px ui-monospace,monospace}
-a{color:var(--acc)}
-.pill.ok{color:var(--ok);border-color:var(--ok)}.pill.hi{color:var(--hi);border-color:var(--hi)}.pill.neutral{color:var(--mut);border-color:var(--line)}
-.lawrow{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line)}.lawrow:last-child{border-bottom:0}
-.lawrow .nm{font-weight:600}.lawrow .st{font-size:.82rem}.lawrow .dt{font-size:.82rem;color:var(--mut)}
-select{background:#0a1020;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.9rem}
-#disc{border-left:5px solid var(--me);background:#1a1508;border-radius:10px;padding:12px 14px;margin:12px 0;color:#fcd34d}
-</style></head><body><div class="wrap">
-<h1>⚖️ ClauseGuard <small>Explainable legal check for everyday contracts</small></h1>
-<p class="lead">Check a <b>rental lease</b>, a <b>freelance/service</b> contract, <b>subscription (SaaS)</b> terms, a <b>consumer loan</b> or a <b>solar power purchase agreement</b>. ClauseGuard finds missing and one-sided clauses, quotes the sentence that triggered each finding, cites the law, and only hashes go on-chain. Chainlink CRE enforces "needs lawyer" before signing or payment.</p>
-<div id="pills"><span class="pill" id="pillRules"></span><span class="pill">explainable &amp; cited</span><span class="pill">private: only hashes on-chain</span><span class="pill">Chainlink CRE + on-chain action gate</span><span class="pill">public API for agents</span></div>
+<style>:root{
+  --bg:#0b1220;--card:#111a2e;--line:#24314d;--ink:#e6ebf5;--mut:#93a0b8;
+  --hi:#ef4444;--me:#f59e0b;--lo:#38bdf8;--ok:#22c55e;--acc:#fbbf24;
+  --serif:'Fraunces',Georgia,serif;
+  --sans:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+[hidden]{display:none!important}
+::selection{background:rgba(251,191,36,.28);color:#fff}
+a:focus-visible,button:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 
+.wrap{max-width:1100px;margin:auto;padding:24px 18px}
+
+/* ---------- HERO ---------- */
+.hx-hero{display:grid;grid-template-columns:1.15fr .85fr;gap:34px;align-items:center;padding:26px 0 8px}
+.hx-left{max-width:640px}
+h1{margin:0;font-family:var(--serif);font-weight:600;font-size:clamp(2.1rem,5.4vw,3.15rem);line-height:1.04;letter-spacing:-.015em}
+h1 small{display:block;margin-top:12px;font-family:var(--sans);font-size:.95rem;color:var(--mut);font-weight:400;letter-spacing:0}
+.lead{color:var(--mut);max-width:780px;margin:18px 0 0;font-size:1.02rem;line-height:1.62}
+.lead b{color:var(--ink);font-weight:600}
+.hx-cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:22px 0 14px}
+.hx-ghost{color:var(--ink);text-decoration:none;font-weight:600;font-size:.95rem;padding:10px 4px;min-height:44px;display:inline-flex;align-items:center;border-bottom:1px solid transparent}
+.hx-ghost:hover{color:var(--acc);border-bottom-color:var(--acc)}
+
+/* trust pills */
+#pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:5px 12px;font-size:.78rem;margin:0;color:var(--mut);background:rgba(255,255,255,.02);line-height:1.3}
+.pill.ok{color:var(--ok);border-color:rgba(34,197,94,.5)}
+.pill.hi{color:var(--hi);border-color:rgba(239,68,68,.5)}
+.pill.neutral{color:var(--mut);border-color:var(--line)}
+
+/* hero mock (result preview) */
+.hx-right{display:flex;justify-content:center}
+.hx-mock{width:100%;max-width:340px;background:linear-gradient(180deg,#131d33,#0e1626);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 30px 60px -30px rgba(0,0,0,.7);position:relative;overflow:hidden}
+.hx-mock::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,var(--hi),var(--me),var(--acc))}
+.hx-mock-top{display:flex;align-items:center;gap:8px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.hx-mock-dot{width:9px;height:9px;border-radius:50%;background:var(--hi);box-shadow:0 0 0 4px rgba(239,68,68,.18)}
+.hx-mock-title{font-size:.82rem;color:var(--mut);font-weight:500}
+.hx-mock-badge{margin-left:auto;font-size:.68rem;font-weight:700;letter-spacing:.02em;color:#fecaca;background:rgba(239,68,68,.16);border:1px solid rgba(239,68,68,.4);padding:3px 9px;border-radius:99px}
+.hx-mock-body{display:flex;gap:16px;align-items:center;padding:16px 0}
+.hx-score{flex:0 0 auto;width:96px;height:96px;border-radius:50%;display:grid;place-items:center;border:7px solid var(--hi);background:radial-gradient(circle at 50% 40%,rgba(239,68,68,.14),transparent 70%)}
+.hx-score-num{font-family:var(--serif);font-size:2.1rem;font-weight:700;line-height:1}
+.hx-score-grade{font-size:.72rem;color:var(--mut);font-weight:600;letter-spacing:.03em}
+.hx-mock-lines{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0}
+.hx-line{display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hx-line-tag{flex:0 0 auto;font-size:.62rem;font-weight:700;padding:2px 7px;border-radius:99px;letter-spacing:.02em}
+.hx-line-hi .hx-line-tag{background:#7f1d1d;color:#fecaca}
+.hx-line-med .hx-line-tag{background:#78350f;color:#fde68a}
+.hx-line-lo .hx-line-tag{background:#0c4a6e;color:#bae6fd}
+.hx-line-ok .hx-line-tag{background:#14532d;color:#bbf7d0}
+.hx-line-txt{overflow:hidden;text-overflow:ellipsis}
+.hx-mock-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-top:12px;border-top:1px solid var(--line)}
+.hx-hash{font-family:var(--mono);font-size:.72rem;color:#cbd5e1;background:#0a1020;border:1px solid var(--line);padding:3px 8px;border-radius:8px}
+.hx-cre{font-size:.7rem;font-weight:700;color:#fecaca}
+
+/* orchestrated motion: one moment, hero mock fills in */
+@keyframes hxScore{from{transform:scale(.86);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes hxLine{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+@keyframes hxPulse{0%,100%{box-shadow:0 0 0 4px rgba(239,68,68,.18)}50%{box-shadow:0 0 0 7px rgba(239,68,68,.05)}}
+.hx-mock{animation:hxScore .5s ease-out both}
+.hx-line{animation:hxLine .5s ease-out both}
+.hx-line:nth-child(1){animation-delay:.15s}
+.hx-line:nth-child(2){animation-delay:.28s}
+.hx-line:nth-child(3){animation-delay:.41s}
+.hx-line:nth-child(4){animation-delay:.54s}
+.hx-mock-dot{animation:hxPulse 2.4s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){
+  .hx-mock,.hx-line,.hx-mock-dot{animation:none}
+  html{scroll-behavior:auto}
+}
+
+/* ---------- LAYOUT ---------- */
+.row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.grid{display:grid;grid-template-columns:1.25fr 1fr;gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin:14px 0}
+.card h2,.card h3{font-family:var(--serif);font-weight:600;margin:0 0 6px;letter-spacing:-.01em}
+.card h2{font-size:1.35rem}
+.card h3{font-size:1.05rem}
+
+/* ---------- CONTROLS ---------- */
+textarea{width:100%;height:230px;background:#0a1020;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:12px;font:14px/1.5 var(--mono);resize:vertical}
+textarea:focus{border-color:var(--acc)}
+button,.btn{background:#1b2742;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px 16px;cursor:pointer;font-weight:600;margin:4px 4px 0 0;font-size:.9rem;min-height:44px;font-family:var(--sans);transition:background .15s,border-color .15s}
+button:hover,.btn:hover{background:#223055;border-color:#33456e}
+button.main{background:var(--acc);color:#111;border:0;padding:12px 22px;font-size:1rem;font-weight:700;min-height:48px}
+button.main:hover{background:#fcd34d}
+button:disabled{opacity:.5;cursor:default}
+select{background:#0a1020;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:.9rem;min-height:44px;font-family:var(--sans)}
+input[type=text]{width:100%;background:#0a1020;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px;font:12px/1.5 var(--mono);min-height:44px}
+
+/* ---------- SCORE / SUMMARY ---------- */
+#summary{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.score{flex:0 0 auto;width:132px;height:132px;border-radius:50%;display:grid;place-items:center;font-family:var(--serif);font-size:2.4rem;font-weight:700;background:radial-gradient(circle at 50% 40%,rgba(255,255,255,.05),transparent 70%)}
+.score span{display:block;font-family:var(--sans);font-size:.78rem;font-weight:600;color:var(--mut);text-align:center;letter-spacing:.03em}
+#summary b{font-weight:600}
+
+/* ---------- FINDINGS ---------- */
+.f{border-left:5px solid;border-radius:12px;background:#0d1528;padding:14px 16px;margin:12px 0}
+.f.high{border-color:var(--hi)}
+.f.med{border-color:var(--me)}
+.f.low{border-color:var(--lo)}
+.f h4{margin:0 0 6px;font-size:1.02rem;font-weight:600;font-family:var(--sans)}
+.tag{font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:99px;margin-left:8px;vertical-align:middle;letter-spacing:.02em}
+.tag.high{background:#7f1d1d;color:#fecaca}
+.tag.med{background:#78350f;color:#fde68a}
+.tag.low{background:#0c4a6e;color:#bae6fd}
+.q{background:#1e293b;border-radius:8px;padding:9px 12px;margin:8px 0;font-style:italic;font-size:.92rem;border-left:3px solid var(--line)}
+.f p{margin:5px 0}
+.k{color:var(--mut);font-size:.84rem}
+.k b{color:var(--ink);font-weight:600}
+
+/* law citation chip */
+.lawrow{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--line)}
+.lawrow:last-child{border-bottom:0}
+.lawrow .nm{font-weight:600}
+.lawrow .st{font-size:.8rem;font-weight:600}
+.lawrow .dt{font-size:.8rem;color:var(--mut)}
+.lawrow a{font-size:.8rem;font-weight:600;text-decoration:none;border:1px solid var(--line);border-radius:99px;padding:3px 10px;color:var(--acc);background:rgba(251,191,36,.06)}
+.lawrow a:hover{background:rgba(251,191,36,.14)}
+
+/* ---------- DOCUMENT ---------- */
+.doc{white-space:pre-wrap;font:13px/1.7 var(--mono);max-height:460px;overflow:auto;background:#0a1020;border-radius:10px;padding:14px;border:1px solid var(--line)}
+mark{background:#7f1d1d;color:#fff;border-radius:3px;padding:1px 3px;cursor:help}
+mark:hover{background:#991b1b}
+
+/* ---------- CODE / HASH ---------- */
+code,.hash{font-family:var(--mono);font-size:12px;word-break:break-all;color:#cbd5e1;background:#0a1020;border:1px solid var(--line);border-radius:7px;padding:3px 8px;display:inline-block}
+.ok{color:var(--ok)}
+.bad{color:var(--hi)}
+a{color:var(--acc)}
+details summary{cursor:pointer;color:var(--mut);font-weight:600}
+footer{color:var(--mut);font-size:.85rem;padding:24px 0}
+
+/* ---------- DISCLAIMER ---------- */
+#disc{border-left:5px solid var(--me);background:#1a1508;border-radius:12px;padding:14px 16px;margin:14px 0;color:#fcd34d}
+
+/* ---------- NEEDS-LAWYER GATE (prominent) ---------- */
+#gate{position:relative}
+#gate .card{border-color:rgba(239,68,68,.5);background:linear-gradient(180deg,rgba(239,68,68,.08),var(--card));padding:22px}
+#gate .g-head{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+#gate .g-icon{flex:0 0 auto;width:48px;height:48px;border-radius:12px;display:grid;place-items:center;background:rgba(239,68,68,.18);border:1px solid rgba(239,68,68,.5);font-size:1.5rem}
+#gate .g-title{font-family:var(--serif);font-size:1.4rem;font-weight:700;margin:0}
+#gate .g-sub{color:var(--mut);font-size:.9rem;margin:2px 0 0}
+#gate .g-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
+#gate .g-step{background:#0d1528;border:1px solid var(--line);border-radius:10px;padding:12px}
+#gate .g-step .g-num{font-family:var(--serif);font-size:1.3rem;font-weight:700;color:var(--acc);line-height:1}
+#gate .g-step .g-lbl{font-size:.82rem;color:var(--ink);margin-top:6px;font-weight:600}
+#gate .g-step .g-desc{font-size:.76rem;color:var(--mut);margin-top:3px}
+#glog{font-family:var(--mono);font-size:.78rem;background:#0a1020;border:1px solid var(--line);border-radius:10px;padding:12px;min-height:60px;white-space:pre-wrap;color:#cbd5e1;margin:12px 0}
+#gate .g-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+#gate .g-actions button{min-height:48px}
+#gate .g-actions button.main{background:var(--acc);color:#111;border:0;font-weight:700}
+#gate .g-actions button:disabled{background:#1b2742;color:var(--mut);border:1px solid var(--line)}
+
+/* ---------- RESPONSIVE ---------- */
+@media(max-width:860px){
+  .grid{grid-template-columns:1fr}
+  .hx-hero{grid-template-columns:1fr;gap:22px;padding-top:14px}
+  .hx-right{order:-1;justify-content:flex-start}
+  .hx-mock{max-width:100%}
+  #gate .g-steps{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:480px){
+  .wrap{padding:18px 14px}
+  h1{font-size:2rem}
+  .lead{font-size:.98rem}
+  .hx-cta{flex-direction:column;align-items:stretch}
+  .hx-cta .main,.hx-cta .hx-ghost{width:100%;justify-content:center;text-align:center}
+  .hx-ghost{border-bottom:0;border:1px solid var(--line);border-radius:10px}
+  #summary{flex-direction:column;align-items:flex-start}
+  .score{width:116px;height:116px;font-size:2.1rem}
+  #gate .g-steps{grid-template-columns:1fr}
+  .lawrow{gap:4px 8px}
+}
+</style><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head><body><div class="wrap">
+<div class="hx-hero">
+  <div class="hx-left">
+    <h1>ClauseGuard <small>Explainable legal check for everyday contracts</small></h1>
+    <p class="lead">Paste any everyday contract. See every risky clause quoted and cited to the law, and signing stays blocked until a lawyer approves.</p>
+    <div class="hx-cta">
+      <button class="main" onclick="load('rental')">Run a sample contract</button>
+      <a class="hx-ghost" href="#res">See a full report</a>
+    </div>
+    <div id="pills"><span class="pill" id="pillRules"></span><span class="pill">explainable &amp; cited</span><span class="pill">private: only hashes on-chain</span><span class="pill">Chainlink CRE + on-chain action gate</span><span class="pill">public API for agents</span></div>
+  </div>
+  <div class="hx-right" aria-hidden="true">
+    <div class="hx-mock">
+      <div class="hx-mock-top">
+        <span class="hx-mock-dot"></span>
+        <span class="hx-mock-title">Lease · clause report</span>
+        <span class="hx-mock-badge">needs lawyer</span>
+      </div>
+      <div class="hx-mock-body">
+        <div class="hx-score">
+          <div class="hx-score-num">42</div>
+          <div class="hx-score-grade">grade D</div>
+        </div>
+        <div class="hx-mock-lines">
+          <div class="hx-line hx-line-hi"><span class="hx-line-tag">high</span><span class="hx-line-txt">Unilateral termination</span></div>
+          <div class="hx-line hx-line-med"><span class="hx-line-tag">med</span><span class="hx-line-txt">Late-fee 8% / month</span></div>
+          <div class="hx-line hx-line-lo"><span class="hx-line-tag">low</span><span class="hx-line-txt">Notice 14 days</span></div>
+          <div class="hx-line hx-line-ok"><span class="hx-line-tag">ok</span><span class="hx-line-txt">Rent stated clearly</span></div>
+        </div>
+      </div>
+      <div class="hx-mock-foot">
+        <span class="hx-hash">sha256 9f2c…a1d4</span>
+        <span class="hx-cre">CRE gate · blocked</span>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="card">
 <div class="row"><b>Try a sample:</b><button onclick="load('rental')">🏠 Risky apartment lease</button><button onclick="load('freelance')">💼 Risky freelance contract</button><button onclick="load('freelanceFair')">✅ Balanced freelance contract</button><button onclick="load('saas')">🔁 Subscription terms</button><button onclick="load('loan')">💳 Consumer loan</button><button onclick="load('risky')">☀️ Risky rooftop PPA</button><button onclick="load('fair')">✅ Balanced PPA</button><button onclick="load('token')">🪙 Revenue-share token</button>
 <label class="btn">📄 Open .txt<input type="file" accept=".txt,.md,text/plain" hidden onchange="openFile(this)"></label></div>
